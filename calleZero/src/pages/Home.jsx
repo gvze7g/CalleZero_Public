@@ -4,11 +4,21 @@ import Footer from "../components/layout/Footer";
 import ProductCard from "../components/common/ProductCard";
 import CategoryCard from "../components/common/CategoryCard";
 import products from "../data/products";
+import homeImage from "../assets/Home.png";
+import hoodiesImg from "../assets/Hoodie.png";
+import tshirtsImg from "../assets/Camisetas.png";
+import accessoriesImg from "../assets/Accesorios.png";
 
 const categoryLabels = {
     hoodies: "Hoodies",
     tshirts: "Camisetas",
     accessories: "Accesorios",
+};
+
+const categoryImages = {
+    hoodies: hoodiesImg,
+    tshirts: tshirtsImg,
+    accessories: accessoriesImg,
 };
 
 const Home = () => {
@@ -19,8 +29,14 @@ const Home = () => {
         <div className="bg-black text-white font-[Open_Sans] overflow-x-hidden">
             <Navbar />
 
-            <section className="flex min-h-[80vh] items-center px-6 md:px-16">
-                <div className="max-w-4xl">
+            <section className="relative flex min-h-[80vh] items-center overflow-hidden px-6 md:px-16">
+                <img
+                    src={homeImage}
+                    alt="Calle Zero Streetwear"
+                    className="absolute inset-0 h-full w-full object-cover object-center opacity-45"
+                />
+
+                <div className="relative z-10 max-w-4xl">
                     <h1 className="font-[Montserrat] text-5xl font-black leading-tight md:text-7xl lg:text-8xl">
                         DEFINE TU <br />
                         <span className="font-[Montserrat] font-black italic text-purple-500">
@@ -95,6 +111,7 @@ const Home = () => {
                             key={item}
                             compact
                             name={categoryLabels[item]}
+                            image={categoryImages[item]}
                             onClick={() => navigate(`/products?category=${item}`)}
                         />
                     ))}

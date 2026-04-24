@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 import AuthLayout from "../components/auth/AuthLayout";
@@ -25,6 +26,26 @@ const Register = () => {
         });
     };
 
+    const handleRegister = (event) => {
+        event.preventDefault();
+
+        if (!form.name.trim() || !form.email.trim() || !form.password.trim()) {
+            toast.error("Debes completar todos los campos");
+            return;
+        }
+
+        if (!form.accepted) {
+            toast.error("Debes aceptar los términos y condiciones");
+            return;
+        }
+
+        toast.success("Cuenta creada correctamente");
+
+        setTimeout(() => {
+            navigate("/login");
+        }, 700);
+    };
+
     return (
         <AuthLayout>
             <div
@@ -34,9 +55,12 @@ const Register = () => {
                 ← VOLVER AL INICIO
             </div>
 
-            <div className="w-[90%] max-w-sm rounded-2xl bg-[#111]/95 p-6 shadow-[0_10px_40px_rgba(168,85,247,0.25)] backdrop-blur-md sm:p-8">
+            <form
+                onSubmit={handleRegister}
+                className="w-[90%] max-w-sm rounded-2xl bg-[#111]/95 p-6 shadow-[0_10px_40px_rgba(168,85,247,0.25)] backdrop-blur-md sm:p-8"
+            >
                 <div className="mb-6 flex flex-col items-center">
-                    <img src={logo} className="mb-2 w-14 sm:w-16" />
+                    <img src={logo} className="mb-2 w-14 sm:w-16" alt="Calle Zero" />
                     <h3 className="font-[Montserrat] text-lg font-semibold text-purple-500">
                         Calle Zero
                     </h3>
@@ -61,6 +85,7 @@ const Register = () => {
                     <Input
                         label="Correo"
                         name="email"
+                        type="email"
                         value={form.email}
                         onChange={handleChange}
                     />
@@ -80,18 +105,19 @@ const Register = () => {
                         name="accepted"
                         checked={form.accepted}
                         onChange={handleChange}
+                        className="accent-purple-500"
                     />
                     <span>Acepto términos y condiciones</span>
                 </div>
 
-                <Button text="Registrarse →" />
+                <Button text="Registrarse →" type="submit" />
 
                 <AuthFooterText
                     text="¿Ya tienes cuenta?"
                     actionText="Inicia sesión"
                     onClick={() => navigate("/login")}
                 />
-            </div>
+            </form>
         </AuthLayout>
     );
 };

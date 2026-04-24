@@ -1,9 +1,46 @@
+import { useState } from "react";
+import { toast } from "sonner";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import ContactInfoCard from "../components/contact/ContactInfoCard";
 import { Mail, MessageCircle, Globe, Camera, X } from "lucide-react";
 
 const Contact = () => {
+    const [form, setForm] = useState({
+        name: "",
+        email: "",
+        subject: "",
+        message: "",
+    });
+
+    const handleChange = (field, value) => {
+        setForm((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+    };
+
+    const handleSubmit = () => {
+        if (
+            !form.name.trim() ||
+            !form.email.trim() ||
+            !form.subject.trim() ||
+            !form.message.trim()
+        ) {
+            toast.error("Debes completar todos los campos");
+            return;
+        }
+
+        toast.success("Mensaje enviado correctamente");
+
+        setForm({
+            name: "",
+            email: "",
+            subject: "",
+            message: "",
+        });
+    };
+
     return (
         <div className="bg-black text-white overflow-x-hidden">
             <Navbar />
@@ -21,27 +58,40 @@ const Contact = () => {
                     <div className="mt-8 space-y-4 sm:space-y-5">
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <input
-                                className="w-full rounded-lg border border-white/10 bg-[#111] px-4 py-3 text-sm outline-none sm:text-base"
+                                value={form.name}
+                                onChange={(event) => handleChange("name", event.target.value)}
+                                className="w-full rounded-lg border border-white/10 bg-[#111] px-4 py-3 text-sm outline-none focus:border-purple-500 sm:text-base"
                                 placeholder="Ej. Alex Zero"
                             />
+
                             <input
-                                className="w-full rounded-lg border border-white/10 bg-[#111] px-4 py-3 text-sm outline-none sm:text-base"
+                                value={form.email}
+                                onChange={(event) => handleChange("email", event.target.value)}
+                                className="w-full rounded-lg border border-white/10 bg-[#111] px-4 py-3 text-sm outline-none focus:border-purple-500 sm:text-base"
                                 placeholder="alex@callezero.com"
                             />
                         </div>
 
                         <input
-                            className="w-full rounded-lg border border-white/10 bg-[#111] px-4 py-3 text-sm outline-none sm:text-base"
+                            value={form.subject}
+                            onChange={(event) => handleChange("subject", event.target.value)}
+                            className="w-full rounded-lg border border-white/10 bg-[#111] px-4 py-3 text-sm outline-none focus:border-purple-500 sm:text-base"
                             placeholder="¿En qué podemos ayudarte?"
                         />
 
                         <textarea
+                            value={form.message}
+                            onChange={(event) => handleChange("message", event.target.value)}
                             rows="5"
-                            className="w-full resize-none rounded-lg border border-white/10 bg-[#111] px-4 py-3 text-sm outline-none sm:text-base"
+                            className="w-full resize-none rounded-lg border border-white/10 bg-[#111] px-4 py-3 text-sm outline-none focus:border-purple-500 sm:text-base"
                             placeholder="Cuéntanos más detalles..."
                         />
 
-                        <button className="w-full rounded-lg bg-purple-500 px-6 py-3 font-[Montserrat] text-sm font-semibold text-black sm:w-auto sm:text-base">
+                        <button
+                            type="button"
+                            onClick={handleSubmit}
+                            className="w-full rounded-lg bg-purple-500 px-6 py-3 font-[Montserrat] text-sm font-semibold text-black sm:w-auto sm:text-base"
+                        >
                             Enviar Mensaje →
                         </button>
                     </div>

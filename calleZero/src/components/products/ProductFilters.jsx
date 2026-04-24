@@ -9,6 +9,8 @@ const ProductFilters = ({
     setShowPrice,
     price,
     setPrice,
+    priceFilterActive,
+    setPriceFilterActive,
     hasFilters,
     clearFilters,
 }) => {
@@ -24,7 +26,7 @@ const ProductFilters = ({
                     Categorías ▾
                 </div>
 
-                {showCategories ? (
+                {showCategories && (
                     <>
                         {[
                             ["hoodies", "Hoodies"],
@@ -37,12 +39,13 @@ const ProductFilters = ({
                                     type="checkbox"
                                     checked={selectedCategories.includes(value)}
                                     onChange={() => toggleCategory(value)}
+                                    className="accent-purple-500"
                                 />{" "}
                                 {label}
                             </label>
                         ))}
                     </>
-                ) : null}
+                )}
             </div>
 
             <div className="text-sm text-gray-400">
@@ -53,33 +56,46 @@ const ProductFilters = ({
                     Precio ▾
                 </div>
 
-                {showPrice ? (
+                {showPrice && (
                     <>
+                        <label className="mb-3 flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                checked={priceFilterActive}
+                                onChange={(e) => setPriceFilterActive(e.target.checked)}
+                                className="accent-purple-500"
+                            />
+                            Activar filtro de precio
+                        </label>
+
                         <input
                             type="range"
                             min="5"
-                            max="100"
+                            max="200"
                             value={price}
-                            onChange={(e) => setPrice(e.target.value)}
-                            className="w-full accent-purple-500"
+                            disabled={!priceFilterActive}
+                            onChange={(e) => setPrice(Number(e.target.value))}
+                            className="w-full accent-purple-500 disabled:opacity-40"
                         />
 
                         <div className="mt-2 flex justify-between font-[Montserrat] text-xs">
-                            <span className="text-purple-500">${price}</span>
-                            <span>$100</span>
+                            <span className={priceFilterActive ? "text-purple-500" : "text-gray-600"}>
+                                ${price}
+                            </span>
+                            <span>$200</span>
                         </div>
                     </>
-                ) : null}
+                )}
             </div>
 
-            {hasFilters ? (
+            {hasFilters && (
                 <button
                     onClick={clearFilters}
                     className="mt-6 w-full rounded-full border border-white/20 py-2 font-[Montserrat] text-sm text-white"
                 >
                     Limpiar Filtros
                 </button>
-            ) : null}
+            )}
         </>
     );
 };

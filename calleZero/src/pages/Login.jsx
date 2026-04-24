@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 import AuthLayout from "../components/auth/AuthLayout";
@@ -18,11 +19,29 @@ const Login = () => {
         setForm({ ...form, [event.target.name]: event.target.value });
     };
 
+    const handleLogin = (event) => {
+        event.preventDefault();
+
+        if (!form.email.trim() || !form.password.trim()) {
+            toast.error("Debes completar correo y contraseña");
+            return;
+        }
+
+        toast.success("Inicio de sesión exitoso");
+
+        setTimeout(() => {
+            navigate("/");
+        }, 700);
+    };
+
     return (
         <AuthLayout>
-            <div className="w-[90%] max-w-sm rounded-2xl bg-[#111]/95 p-6 shadow-[0_10px_40px_rgba(168,85,247,0.25)] backdrop-blur-md sm:p-8">
+            <form
+                onSubmit={handleLogin}
+                className="w-[90%] max-w-sm rounded-2xl bg-[#111]/95 p-6 shadow-[0_10px_40px_rgba(168,85,247,0.25)] backdrop-blur-md sm:p-8"
+            >
                 <div className="mb-6 flex flex-col items-center">
-                    <img src={logo} className="mb-2 w-14 sm:w-16" />
+                    <img src={logo} className="mb-2 w-14 sm:w-16" alt="Calle Zero" />
                     <h3 className="font-[Montserrat] text-lg font-semibold text-purple-500">
                         Calle Zero
                     </h3>
@@ -40,6 +59,7 @@ const Login = () => {
                     <Input
                         label="Correo Electrónico"
                         name="email"
+                        type="email"
                         value={form.email}
                         onChange={handleChange}
                     />
@@ -53,7 +73,7 @@ const Login = () => {
                     />
                 </div>
 
-                <Button text="Iniciar Sesión →" />
+                <Button text="Iniciar Sesión →" type="submit" />
 
                 <AuthFooterText
                     text="¿No tienes cuenta?"
@@ -67,7 +87,7 @@ const Login = () => {
                 >
                     ← Volver a la tienda
                 </p>
-            </div>
+            </form>
         </AuthLayout>
     );
 };

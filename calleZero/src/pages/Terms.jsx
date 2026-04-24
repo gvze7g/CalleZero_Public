@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import { FileText, Shield, Truck, RotateCcw, Mail } from "lucide-react";
@@ -46,14 +48,20 @@ const sections = [
         number: "06.",
         title: "PRIVACIDAD Y DATOS",
         text: [
-            "Tu privacidad es fundamental para nosotros. La recopilación y el uso de tus datos personales se rigen por nuestra Política de Privacidad.",
+            "Tu privacidad es fundamental para nosotros. La recopilación y el uso de tus datos personales se rige por nuestra Política de Privacidad.",
         ],
     },
 ];
 
 const Terms = () => {
+    const navigate = useNavigate();
+
+    const handleContentClick = (label) => {
+        toast.info(`Sección seleccionada: ${label}`);
+    };
+
     return (
-        <div className="bg-black text-white">
+        <div className="bg-black text-white overflow-x-hidden">
             <Navbar />
 
             <section className="bg-[#1A1A1F] px-6 py-16 md:px-16 lg:px-32">
@@ -63,8 +71,7 @@ const Terms = () => {
                 </p>
 
                 <h1 className="font-[Montserrat] text-4xl font-black md:text-6xl">
-                    TÉRMINOS Y{" "}
-                    <span className="text-purple-500">CONDICIONES</span>
+                    TÉRMINOS Y <span className="text-purple-500">CONDICIONES</span>
                 </h1>
 
                 <p className="mt-6 max-w-3xl font-[Open_Sans] text-sm leading-7 text-gray-300 md:text-base">
@@ -85,12 +92,23 @@ const Terms = () => {
                         <h3 className="mb-5 font-[Montserrat] text-sm font-bold">
                             CONTENIDO
                         </h3>
+
                         <ul className="space-y-3 font-[Open_Sans] text-sm text-gray-400">
-                            <li>Uso del Sitio</li>
-                            <li>Propiedad Intelectual</li>
-                            <li>Envíos y Entregas</li>
-                            <li>Devoluciones</li>
-                            <li>Privacidad</li>
+                            {[
+                                "Uso del Sitio",
+                                "Propiedad Intelectual",
+                                "Envíos y Entregas",
+                                "Devoluciones",
+                                "Privacidad",
+                            ].map((item) => (
+                                <li
+                                    key={item}
+                                    onClick={() => handleContentClick(item)}
+                                    className="cursor-pointer transition hover:text-purple-500"
+                                >
+                                    {item}
+                                </li>
+                            ))}
                         </ul>
                     </div>
                 </aside>
@@ -123,7 +141,13 @@ const Terms = () => {
                                 </div>
 
                                 {index === 0 && (
-                                    <div className="mt-8 flex gap-4 rounded-xl border border-white/10 bg-[#1B1B22] p-5">
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            toast.info("Tu seguridad está protegida en Calle Zero")
+                                        }
+                                        className="mt-8 flex w-full gap-4 rounded-xl border border-white/10 bg-[#1B1B22] p-5 text-left transition hover:border-purple-500/60"
+                                    >
                                         <Shield className="shrink-0 text-purple-500" size={24} />
                                         <div>
                                             <h4 className="font-[Montserrat] font-bold">
@@ -134,11 +158,17 @@ const Terms = () => {
                                                 cuidar tus transacciones y datos personales.
                                             </p>
                                         </div>
-                                    </div>
+                                    </button>
                                 )}
 
                                 {index === 3 && (
-                                    <div className="mt-8 flex gap-4 rounded-xl border border-white/10 bg-[#1B1B22] p-5">
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            toast.info("El envío gratuito aplica en compras mayores a $150")
+                                        }
+                                        className="mt-8 flex w-full gap-4 rounded-xl border border-white/10 bg-[#1B1B22] p-5 text-left transition hover:border-purple-500/60"
+                                    >
                                         <Truck className="shrink-0 text-purple-500" size={24} />
                                         <div>
                                             <h4 className="font-[Montserrat] font-bold">
@@ -148,7 +178,7 @@ const Terms = () => {
                                                 Ofrecemos envío gratuito en compras superiores a $150.
                                             </p>
                                         </div>
-                                    </div>
+                                    </button>
                                 )}
                             </article>
                         );
@@ -156,21 +186,31 @@ const Terms = () => {
 
                     <div className="rounded-2xl bg-[#1B1B22] p-8 text-center">
                         <FileText className="mx-auto text-purple-500" size={42} />
+
                         <h3 className="mt-5 font-[Montserrat] text-xl font-black">
                             ¿Tienes alguna pregunta legal?
                         </h3>
+
                         <p className="mx-auto mt-3 max-w-md font-[Open_Sans] text-sm text-gray-400">
                             Nuestro equipo legal está disponible para aclarar cualquier duda
                             relacionada con estos términos.
                         </p>
 
                         <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-                            <button className="inline-flex items-center justify-center gap-2 rounded-lg bg-purple-500 px-5 py-3 font-[Montserrat] text-sm font-bold text-black">
+                            <button
+                                type="button"
+                                onClick={() => toast.info("Próximamente se abrirá Gmail")}
+                                className="inline-flex items-center justify-center gap-2 rounded-lg bg-purple-500 px-5 py-3 font-[Montserrat] text-sm font-bold text-black"
+                            >
                                 <Mail size={16} />
                                 Escríbenos un Correo
                             </button>
 
-                            <button className="rounded-lg bg-black px-5 py-3 font-[Montserrat] text-sm font-bold text-white">
+                            <button
+                                type="button"
+                                onClick={() => navigate("/about")}
+                                className="rounded-lg bg-black px-5 py-3 font-[Montserrat] text-sm font-bold text-white transition hover:text-purple-500"
+                            >
                                 Sobre Nosotros
                             </button>
                         </div>

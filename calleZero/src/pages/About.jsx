@@ -1,7 +1,12 @@
-import Navbar from "../components/layout/NavBar";
+import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import { Shield, Zap, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+
+import photo4 from "../assets/photo-4.jpg";
+import photo3 from "../assets/photo-3.jpg";
+import photo2 from "../assets/photo-2.jpg";
+import photo1 from "../assets/photo-1.jpg";
 
 const pillars = [
     {
@@ -25,11 +30,15 @@ const About = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="bg-black text-white">
+        <div className="bg-black text-white overflow-x-hidden">
             <Navbar />
 
             <section className="relative flex min-h-[420px] items-center justify-center overflow-hidden px-6 text-center">
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1518005020951-eccb494ad742')] bg-cover bg-center opacity-35" />
+                <img
+                    src={photo4}
+                    alt="Calle Zero"
+                    className="absolute inset-0 h-full w-full object-cover opacity-35"
+                />
                 <div className="absolute inset-0 bg-black/55" />
 
                 <div className="relative z-10">
@@ -61,10 +70,9 @@ const About = () => {
                         </p>
 
                         <p className="font-bold text-white">
-                            Creemos que la verdadera sofisticación reside en la ausencia de
-                            lo innecesario. Cada costura, cada tejido y cada silueta está
-                            diseñada para resistir el paso del tiempo y las tendencias
-                            efímeras.
+                            Creemos que la verdadera sofisticación reside en la ausencia de lo
+                            innecesario. Cada costura, cada tejido y cada silueta está diseñada
+                            para resistir el paso del tiempo y las tendencias efímeras.
                         </p>
 
                         <p>
@@ -76,7 +84,11 @@ const About = () => {
                 </div>
 
                 <div className="rounded-2xl border border-purple-500/20 bg-[#15111d] p-3">
-                    <div className="h-[360px] rounded-xl bg-[url('https://images.unsplash.com/photo-1556821840-3a63f95609a7')] bg-cover bg-center md:h-[520px]" />
+                    <img
+                        src={photo3}
+                        alt="Manifiesto Calle Zero"
+                        className="h-[360px] w-full rounded-xl object-cover md:h-[520px]"
+                    />
                 </div>
             </section>
 
@@ -122,13 +134,23 @@ const About = () => {
                 </p>
             </section>
 
-            <section className="grid gap-5 px-6 py-20 md:px-16 lg:grid-cols-[1.4fr_0.7fr]">
-                <div className="min-h-[520px] rounded-xl bg-[url('https://images.unsplash.com/photo-1529139574466-a303027c1d8b')] bg-cover bg-center" />
+            <section className="grid gap-5 px-6 py-14 md:px-16 lg:grid-cols-[1.2fr_0.8fr]">
+                <img
+                    src={photo1}
+                    alt="Colección Calle Zero"
+                    className="h-[500px] w-full rounded-xl object-cover object-center"
+                />
+                <div className="grid gap-5 md:grid-rows-[220px_1fr]">
+                    <div className="relative h-[220px] overflow-hidden rounded-xl">
+                        <img
+                            src={photo2}
+                            alt="Movimiento Calle Zero"
+                            className="h-full w-full object-cover object-center transition duration-500 hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/20" />
+                    </div>
 
-                <div className="grid gap-5">
-                    <div className="rounded-xl bg-[url('https://images.unsplash.com/photo-1551028719-00167b16eac5')] bg-cover bg-center" />
-
-                    <div className="flex flex-col justify-end rounded-xl bg-purple-500 p-8 text-black">
+                    <div className="flex min-h-[260px] flex-col justify-end rounded-xl bg-purple-500 p-8 text-black">
                         <h3 className="font-[Montserrat] text-2xl font-black">
                             Únete al Movimiento
                         </h3>
@@ -144,6 +166,7 @@ const About = () => {
                         </button>
                     </div>
                 </div>
+
             </section>
 
             <Footer />

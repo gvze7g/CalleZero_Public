@@ -1,9 +1,22 @@
+import { useState } from "react";
+import { toast } from "sonner";
 import logo from "../../assets/logo-1.png";
 import { Camera, X, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Footer = () => {
     const navigate = useNavigate();
+    const [email, setEmail] = useState("");
+
+    const handleNewsletter = () => {
+        if (!email.trim()) {
+            toast.error("Debes ingresar tu correo electrónico");
+            return;
+        }
+
+        toast.success("Te has unido correctamente. Recibirás correos con novedades y descuentos.");
+        setEmail("");
+    };
 
     return (
         <footer className="bg-black text-white border-t border-white/10">
@@ -23,11 +36,17 @@ const Footer = () => {
                     <div className="flex w-full md:w-auto gap-3">
                         <input
                             type="email"
+                            value={email}
+                            onChange={(event) => setEmail(event.target.value)}
                             placeholder="Tu correo electrónico"
                             className="w-full md:w-[280px] px-4 py-3 bg-[#111] rounded-md text-white outline-none border border-white/10 focus:border-purple-500"
                         />
 
-                        <button className="px-6 py-3 bg-purple-500 text-black font-bold rounded-md hover:opacity-90 transition">
+                        <button
+                            type="button"
+                            onClick={handleNewsletter}
+                            className="px-6 py-3 bg-purple-500 text-black font-bold rounded-md hover:opacity-90 transition"
+                        >
                             Unirme
                         </button>
                     </div>
@@ -72,22 +91,13 @@ const Footer = () => {
                     <div>
                         <h4 className="font-semibold mb-4 font-[Montserrat]">TIENDA</h4>
                         <ul className="space-y-2 text-gray-400 text-sm">
-                            <li
-                                onClick={() => navigate("/products")}
-                                className="hover:text-purple-500 cursor-pointer"
-                            >
+                            <li onClick={() => navigate("/products")} className="hover:text-purple-500 cursor-pointer">
                                 Todos los productos
                             </li>
-                            <li
-                                onClick={() => navigate("/categories")}
-                                className="hover:text-purple-500 cursor-pointer"
-                            >
+                            <li onClick={() => navigate("/categories")} className="hover:text-purple-500 cursor-pointer">
                                 Categorías
                             </li>
-                            <li
-                                onClick={() => navigate("/products")}
-                                className="hover:text-purple-500 cursor-pointer"
-                            >
+                            <li onClick={() => navigate("/products")} className="hover:text-purple-500 cursor-pointer">
                                 Novedades
                             </li>
                         </ul>
@@ -96,22 +106,13 @@ const Footer = () => {
                     <div>
                         <h4 className="font-semibold mb-4 font-[Montserrat]">COMPAÑÍA</h4>
                         <ul className="space-y-2 text-gray-400 text-sm">
-                            <li
-                                onClick={() => navigate("/about")}
-                                className="hover:text-purple-500 cursor-pointer"
-                            >
+                            <li onClick={() => navigate("/about")} className="hover:text-purple-500 cursor-pointer">
                                 Sobre nosotros
                             </li>
-                            <li
-                                onClick={() => navigate("/contact")}
-                                className="hover:text-purple-500 cursor-pointer"
-                            >
+                            <li onClick={() => navigate("/contact")} className="hover:text-purple-500 cursor-pointer">
                                 Contacto
                             </li>
-                            <li
-                                onClick={() => navigate("/terms")}
-                                className="hover:text-purple-500 cursor-pointer"
-                            >
+                            <li onClick={() => navigate("/terms")} className="hover:text-purple-500 cursor-pointer">
                                 Términos
                             </li>
                         </ul>
@@ -120,22 +121,13 @@ const Footer = () => {
                     <div className="col-span-2 md:col-span-1">
                         <h4 className="font-semibold mb-4 font-[Montserrat]">AYUDA</h4>
                         <ul className="space-y-2 text-gray-400 text-sm">
-                            <li
-                                onClick={() => navigate("/terms")}
-                                className="hover:text-purple-500 cursor-pointer"
-                            >
+                            <li onClick={() => navigate("/terms")} className="hover:text-purple-500 cursor-pointer">
                                 Envíos
                             </li>
-                            <li
-                                onClick={() => navigate("/terms")}
-                                className="hover:text-purple-500 cursor-pointer"
-                            >
+                            <li onClick={() => navigate("/terms")} className="hover:text-purple-500 cursor-pointer">
                                 Devoluciones
                             </li>
-                            <li
-                                onClick={() => navigate("/terms")}
-                                className="hover:text-purple-500 cursor-pointer"
-                            >
+                            <li onClick={() => navigate("/terms")} className="hover:text-purple-500 cursor-pointer">
                                 FAQ
                             </li>
                         </ul>
@@ -144,8 +136,7 @@ const Footer = () => {
 
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4 border-t border-white/10 pt-6 text-xs text-gray-500">
                     <span>
-                        © {new Date().getFullYear()} Calle Zero. Todos los derechos
-                        reservados.
+                        © {new Date().getFullYear()} Calle Zero. Todos los derechos reservados.
                     </span>
 
                     <div className="flex gap-6">

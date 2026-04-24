@@ -1,17 +1,31 @@
 import React from "react";
 
-const CategoryCard = ({ name, items, tag, img, onClick, compact = false }) => {
+const CategoryCard = ({ name, items, tag, image, onClick, compact = false }) => {
     if (compact) {
         return (
             <article
                 onClick={onClick}
-                className="flex aspect-3/4 cursor-pointer flex-col justify-end rounded-xl bg-[#111] p-5 transition hover:scale-[1.03]"
+                className="group relative flex aspect-3/4 cursor-pointer flex-col justify-end overflow-hidden rounded-xl bg-[#111] p-5 transition hover:scale-[1.03]"
             >
-                <h3 className="font-[Montserrat] font-bold text-white">{name}</h3>
+                {image ? (
+                    <img
+                        src={image}
+                        alt={name}
+                        className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    />
+                ) : (
+                    <div className="absolute inset-0 bg-[#1a1a1a]" />
+                )}
 
-                <button className="mt-2 w-fit rounded-full bg-black px-4 py-1 font-[Montserrat] text-sm text-white">
-                    Ver Colección
-                </button>
+                <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/45 to-transparent" />
+
+                <div className="relative z-10">
+                    <h3 className="font-[Montserrat] font-bold text-white">{name}</h3>
+
+                    <button className="mt-2 w-fit rounded-full bg-black px-4 py-1 font-[Montserrat] text-sm text-white">
+                        Ver Colección
+                    </button>
+                </div>
             </article>
         );
     }
@@ -21,10 +35,15 @@ const CategoryCard = ({ name, items, tag, img, onClick, compact = false }) => {
             onClick={onClick}
             className="group relative cursor-pointer overflow-hidden rounded-2xl"
         >
-            <div
-                className="h-[340px] bg-cover bg-center transition duration-500 group-hover:scale-105 sm:h-[380px] md:h-[420px] lg:h-[480px]"
-                style={{ backgroundImage: `url(${img})` }}
-            />
+            {image ? (
+                <img
+                    src={image}
+                    alt={name}
+                    className="h-[340px] w-full object-cover transition duration-500 group-hover:scale-105 sm:h-[380px] md:h-[420px] lg:h-[480px]"
+                />
+            ) : (
+                <div className="h-[340px] bg-[#1a1a1a] transition duration-500 group-hover:scale-105 sm:h-[380px] md:h-[420px] lg:h-[480px]" />
+            )}
 
             <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/50 to-transparent" />
 

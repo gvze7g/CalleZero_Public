@@ -53,8 +53,8 @@ const Navbar = () => {
             ref={(el) => (linksRef.current[path] = el)}
             onClick={() => goTo(path)}
             className={`cursor-pointer py-1 transition ${location.pathname === path
-                    ? "text-purple-500"
-                    : "text-white hover:text-purple-500"
+                ? "text-purple-500"
+                : "text-white hover:text-purple-500"
                 }`}
         >
             {label}
@@ -63,7 +63,7 @@ const Navbar = () => {
 
     return (
         <>
-            <nav className="sticky top-0 z-50 w-full overflow-hidden border-b border-white/10 bg-black/90 backdrop-blur-xl">
+            <nav className="fixed left-0 top-0 z-50 w-full border-b border-white/10 bg-black/90 backdrop-blur-xl">
                 <div className="flex items-center justify-between px-5 py-4 md:px-8">
                     <button
                         type="button"
@@ -123,9 +123,11 @@ const Navbar = () => {
                 </div>
             </nav>
 
+            <div className="h-[73px]" />
+
             {menuOpen &&
                 createPortal(
-                    <div className="fixed inset-0 z-[9999] overflow-hidden md:hidden">
+                    <div className="fixed inset-0 z-9999 overflow-hidden md:hidden">
                         <div
                             onClick={() => setMenuOpen(false)}
                             className="absolute inset-0 bg-black/70 backdrop-blur-sm"
@@ -162,8 +164,8 @@ const Navbar = () => {
                                                 type="button"
                                                 onClick={() => goTo(link.path)}
                                                 className={`flex w-full items-center justify-between rounded-2xl px-5 py-4 text-left font-[Montserrat] text-lg font-bold transition ${active
-                                                        ? "bg-purple-500 text-black"
-                                                        : "bg-white/[0.04] text-white hover:bg-white/10"
+                                                    ? "bg-purple-500 text-black"
+                                                    : "bg-white/4 text-white hover:bg-white/10"
                                                     }`}
                                             >
                                                 <span>{link.label}</span>

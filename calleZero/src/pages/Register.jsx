@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Input from "../components/Input";
-import Button from "../components/Button";
+import Input from "../components/ui/Input";
+import Button from "../components/ui/Button";
+import AuthLayout from "../components/auth/AuthLayout";
+import AuthFooterText from "../components/auth/AuthFooterText";
 import logo from "../assets/logo-1.png";
 
 const Register = () => {
@@ -14,8 +16,8 @@ const Register = () => {
         accepted: false,
     });
 
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
+    const handleChange = (event) => {
+        const { name, value, type, checked } = event.target;
 
         setForm({
             ...form,
@@ -24,86 +26,73 @@ const Register = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-black font-opensans relative overflow-hidden">
-
-            {/* FONDO */}
-            <div className="fixed inset-0 z-0 overflow-hidden">
-                <div className="absolute inset-0 bg-black" />
-
-                <div className="absolute top-[-250px] left-1/2 -translate-x-1/2 
-                w-[800px] h-[800px] bg-purple-500 opacity-20 blur-[180px] rounded-full" />
-
-                <div className="absolute bottom-[-200px] right-[-100px] 
-                w-[600px] h-[600px] bg-purple-700 opacity-10 blur-[160px] rounded-full" />
-            </div>
-
-            {/* BOTÓN VOLVER (RESPONSIVE FIX) */}
+        <AuthLayout>
             <div
                 onClick={() => navigate("/")}
-                className="absolute top-4 left-4 sm:top-6 sm:left-6 text-[10px] sm:text-xs text-white cursor-pointer hover:text-purple-400 z-20"
+                className="absolute left-4 top-4 z-20 cursor-pointer text-[10px] text-white hover:text-purple-400 sm:left-6 sm:top-6 sm:text-xs"
             >
                 ← VOLVER AL INICIO
             </div>
 
-            {/* CONTENIDO */}
-            <div className="flex-1 flex flex-col items-center justify-center px-4 pt-16 sm:pt-0 relative z-10">
-
-                <div className="w-[90%] max-w-sm bg-[#111]/95 backdrop-blur-md p-6 sm:p-8 rounded-2xl shadow-[0_10px_40px_rgba(168,85,247,0.25)]">
-
-                    <div className="flex flex-col items-center mb-6">
-                        <img src={logo} className="w-14 sm:w-16 mb-2" />
-                        <h3 className="text-purple-500 text-lg font-montserrat font-semibold">
-                            Calle Zero
-                        </h3>
-                    </div>
-
-                    <h2 className="text-white text-center text-xl font-montserrat font-bold">
-                        Crear Cuenta
-                    </h2>
-
-                    <p className="text-gray-400 text-center text-sm mb-6">
-                        Únete al movimiento urbano
-                    </p>
-
-                    <div className="space-y-4">
-                        <Input label="Nombre" name="name" value={form.name} onChange={handleChange} />
-                        <Input label="Correo" name="email" value={form.email} onChange={handleChange} />
-                        <Input label="Contraseña" name="password" type="password" value={form.password} onChange={handleChange} />
-                    </div>
-
-                    <div className="flex items-center gap-2 text-xs text-gray-400 mt-4">
-                        <input type="checkbox" name="accepted" onChange={handleChange} />
-                        <span>Acepto términos y condiciones</span>
-                    </div>
-
-                    <Button text="Registrarse →" />
-
-                    <p className="text-gray-400 text-center text-sm mt-4">
-                        ¿Ya tienes cuenta?{" "}
-                        <span onClick={() => navigate("/login")} className="text-purple-500 cursor-pointer">
-                            Inicia sesión
-                        </span>
-                    </p>
+            <div className="w-[90%] max-w-sm rounded-2xl bg-[#111]/95 p-6 shadow-[0_10px_40px_rgba(168,85,247,0.25)] backdrop-blur-md sm:p-8">
+                <div className="mb-6 flex flex-col items-center">
+                    <img src={logo} className="mb-2 w-14 sm:w-16" />
+                    <h3 className="font-[Montserrat] text-lg font-semibold text-purple-500">
+                        Calle Zero
+                    </h3>
                 </div>
 
-                {/* TEXTO DIFUMINADO */}
-                <div className="text-center mt-10 pointer-events-none">
-                    <p className="text-white opacity-17 tracking-[6px] sm:tracking-[8px] text-[10px] sm:text-xs">
-                        MINIMALISMO URBANO
-                    </p>
-                    <p className="text-white opacity-17 tracking-[6px] sm:tracking-[8px] text-[10px] sm:text-xs mt-2">
-                        DISEÑADO PARA EL AHORA
-                    </p>
+                <h2 className="text-center font-[Montserrat] text-xl font-bold text-white">
+                    Crear Cuenta
+                </h2>
+
+                <p className="mb-6 text-center text-sm text-gray-400">
+                    Únete al movimiento urbano
+                </p>
+
+                <div className="space-y-4">
+                    <Input
+                        label="Nombre"
+                        name="name"
+                        value={form.name}
+                        onChange={handleChange}
+                    />
+
+                    <Input
+                        label="Correo"
+                        name="email"
+                        value={form.email}
+                        onChange={handleChange}
+                    />
+
+                    <Input
+                        label="Contraseña"
+                        name="password"
+                        type="password"
+                        value={form.password}
+                        onChange={handleChange}
+                    />
                 </div>
 
-            </div>
+                <div className="mt-4 flex items-center gap-2 text-xs text-gray-400">
+                    <input
+                        type="checkbox"
+                        name="accepted"
+                        checked={form.accepted}
+                        onChange={handleChange}
+                    />
+                    <span>Acepto términos y condiciones</span>
+                </div>
 
-            {/* FOOTER */}
-            <div className="w-full text-center text-gray-500 text-xs border-t border-white/10 py-4 relative z-10">
-                © 2026 Calle Zero — Todos los derechos reservados
-            </div>
+                <Button text="Registrarse →" />
 
-        </div>
+                <AuthFooterText
+                    text="¿Ya tienes cuenta?"
+                    actionText="Inicia sesión"
+                    onClick={() => navigate("/login")}
+                />
+            </div>
+        </AuthLayout>
     );
 };
 

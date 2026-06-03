@@ -1,0 +1,50 @@
+import React from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Toaster } from "sonner";
+
+import LoginPage from "./pages/LoginPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import DashboardPage from "./pages/DashboardPage";
+import ProductsPage from "./pages/ProductsPage";
+import OrdersPage from "./pages/OrdersPage";
+import UsersPage from "./pages/UsersPage";
+import CategoriesPage from "./pages/CategoriesPage";
+import AddProductPage from "./pages/AddProductPage";
+import ProfilePage from "./pages/ProfilePage";
+
+const App = () => {
+  return (
+    <>
+      <Toaster
+        position="top-right"
+        richColors
+        toastOptions={{
+          style: {
+            background: "#1A1F2B",
+            color: "#FFFFFF",
+            border: "1px solid rgba(255,255,255,0.08)",
+            fontFamily: "Open Sans",
+          },
+        }}
+      />
+
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/products" element={<ProductsPage />} />
+          <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/users" element={<UsersPage />} />
+          <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/add-product" element={<AddProductPage />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </>
+  );
+};
+
+export default App;

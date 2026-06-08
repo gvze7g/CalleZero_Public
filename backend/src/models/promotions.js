@@ -4,9 +4,9 @@ const PromotionsSchema = new Schema({
     name: {type: String},
     type: {type: String},
     value: {type: Number},
-    starDate: {type: Date},
+    startDate: {type: Date},
     endDate: {type: Date},
-    Active: {type: Boolean},
+    active: {type: Boolean},
     appliesTo: {type: String}
 }, {
     timestamps: true,

@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import mongoose, {Schema, model} from "mongoose"
 
 const ProductsSchema = new Schema({
     name: {type: String},

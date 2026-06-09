@@ -1,5 +1,5 @@
 //PromotionModel: name,type,value,startDate,endDateactive,appliesTo
-import modelPromotion from "../models/promotions";
+import modelPromotion from "../models/promotions.js";
 
 const controllerPromotion = {};
 

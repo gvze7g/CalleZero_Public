@@ -1,7 +1,7 @@
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
-import { config } from "../../config.js"
+import { config } from "../config.js"
 
 cloudinary.config({
     cloud_name: config.cloudinary.cloud_name,
@@ -12,7 +12,7 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
     cloudinary,
     params: {
-        folder: "HOPE_PTC26",
+        folder: "Calle-Zero",
         allowed_formats: [ "jpg", "png", "jpeg", "webp", "svg", "pdf" ]
     }
 })

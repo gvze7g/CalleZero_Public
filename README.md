@@ -1,4 +1,4 @@
-# Calle Zero – Plataforma Web
+# Calle Zero 
 
 ## Integrantes
 

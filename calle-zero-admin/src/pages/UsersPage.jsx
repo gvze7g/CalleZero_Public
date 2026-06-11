@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { Filter, ArrowUpDown, UserPlus, Users } from "lucide-react";
 import { toast } from "sonner";
 import AdminLayout from "../components/layout/AdminLayout";
@@ -7,37 +7,80 @@ import Pagination from "../components/shared/Pagination";
 import Modal from "../components/shared/Modal";
 import UsersTabs from "../components/users/UsersTabs";
 import UsersGrid from "../components/users/UsersGrid";
-import { userRows, userStats } from "../data/adminData";
 
 const UsersPage = () => {
-    const [users, setUsers] = useState(userRows);
+    const [users, setUsers] = useState([]);
+    const [roles, setRoles] = useState([]);
+    const [stats, setStats] = useState({});
     const [activeTab, setActiveTab] = useState("Todos");
     const [currentPage, setCurrentPage] = useState(1);
     const [sortMode, setSortMode] = useState("name");
     const [selectedUser, setSelectedUser] = useState(null);
     const [isUserModalOpen, setIsUserModalOpen] = useState(false);
     const [editingUser, setEditingUser] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     const [formData, setFormData] = useState({
-        name: "",
+        fullName: "",
         email: "",
-        role: "Cliente",
-        date: "Desde 23 Abr 2026",
-        avatar: "NU",
-        status: "online",
+        role: "",
     });
+
+    // Cargar usuarios y roles al montar
+    useEffect(() => {
+        loadUsers();
+        loadRoles();
+        loadStats();
+    }, []);
+
+    const loadUsers = async () => {
+        try {
+            setLoading(true);
+            const response = await fetch("http://localhost:4000/api/admin/users");
+            const data = await response.json();
+
+            if (data.success) {
+                setUsers(data.users);
+            } else {
+                toast.error("Error al cargar usuarios");
+            }
+        } catch (error) {
+            toast.error("Error de conexión");
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const loadRoles = async () => {
+        try {
+            // Aquí asumimos que tienes una ruta para obtener roles
+            // Si no la tienes, podemos usar los roles hardcodeados por ahora
+            setRoles(["Administrador", "Cliente"]);
+        } catch (error) {
+            console.error(error);
+            setRoles(["Administrador", "Cliente"]);
+        }
+    };
+
+    const loadStats = async () => {
+        try {
+            const response = await fetch("http://localhost:4000/api/admin/users/stats");
+            const data = await response.json();
+
+            if (data.success) {
+                setStats(data.stats);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     const filteredUsers = useMemo(() => {
         let result = [...users];
 
         if (activeTab === "Administradores") {
-            result = result.filter(
-                (user) => user.role === "Administrador" || user.role === "Editor"
-            );
-        }
-
-        if (activeTab === "Clientes vip") {
-            result = result.filter((user) => user.role === "Cliente VIP");
+            result = result.filter((user) => user.role === "Administrador");
         }
 
         if (activeTab === "Clientes") {
@@ -58,50 +101,110 @@ const UsersPage = () => {
     const openCreateModal = () => {
         setEditingUser(null);
         setFormData({
-            name: "",
+            fullName: "",
             email: "",
-            role: "Cliente",
-            date: "Desde 23 Abr 2026",
-            avatar: "NU",
-            status: "online",
+            role: roles[0] || "Cliente",
         });
         setIsUserModalOpen(true);
     };
 
     const openEditModal = (user) => {
         setEditingUser(user);
-        setFormData(user);
+        setFormData({
+            fullName: user.name,
+            email: user.email,
+            role: user.role,
+        });
         setSelectedUser(null);
         setIsUserModalOpen(true);
     };
 
-    const handleSubmitUser = (event) => {
+    const handleSubmitUser = async (event) => {
         event.preventDefault();
 
-        if (!formData.name.trim() || !formData.email.trim()) {
+        if (!formData.fullName.trim() || !formData.email.trim()) {
             toast.error("Debes completar nombre y correo");
             return;
         }
 
-        if (editingUser) {
-            setUsers((prev) =>
-                prev.map((user) =>
-                    user.email === editingUser.email ? { ...formData } : user
-                )
-            );
-            toast.success("Usuario actualizado correctamente");
-        } else {
-            setUsers((prev) => [{ ...formData }, ...prev]);
-            toast.success("Usuario agregado correctamente");
+        if (!formData.role) {
+            toast.error("Debes seleccionar un rol");
+            return;
         }
 
-        setIsUserModalOpen(false);
+        try {
+            let response;
+
+            if (editingUser) {
+                // Actualizar usuario
+                response = await fetch(
+                    `http://localhost:4000/api/admin/users/${editingUser._id}`,
+                    {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            fullName: formData.fullName,
+                            email: formData.email,
+                            role: formData.role,
+                        }),
+                    }
+                );
+            } else {
+                // Crear usuario
+                response = await fetch("http://localhost:4000/api/admin/users", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        fullName: formData.fullName,
+                        email: formData.email,
+                        role: formData.role,
+                    }),
+                });
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                toast.success(
+                    editingUser
+                        ? "Usuario actualizado correctamente"
+                        : "Usuario creado correctamente"
+                );
+                setIsUserModalOpen(false);
+                loadUsers();
+                loadStats();
+            } else {
+                toast.error(data.message || "Error al procesar el usuario");
+            }
+        } catch (error) {
+            toast.error("Error de conexión");
+            console.error(error);
+        }
     };
 
-    const handleDeleteUser = (user) => {
-        setUsers((prev) => prev.filter((item) => item.email !== user.email));
-        setSelectedUser(null);
-        toast.error(`Usuario eliminado: ${user.name}`);
+    const handleDeleteUser = async (user) => {
+        try {
+            const response = await fetch(
+                `http://localhost:4000/api/admin/users/${user._id}`,
+                {
+                    method: "DELETE",
+                }
+            );
+
+            const data = await response.json();
+
+            if (data.success) {
+                toast.error(`Usuario eliminado: ${user.name}`);
+                setSelectedUser(null);
+                loadUsers();
+                loadStats();
+            } else {
+                toast.error(data.message || "Error al eliminar usuario");
+            }
+        } catch (error) {
+            toast.error("Error de conexión");
+            console.error(error);
+        }
     };
 
     const handleSort = () => {
@@ -113,6 +216,34 @@ const UsersPage = () => {
                 : "Usuarios ordenados por rol"
         );
     };
+
+    const userStats = [
+        {
+            title: "Total de Usuarios",
+            value: stats.totalUsers || 0,
+            percentage: "+12%",
+        },
+        {
+            title: "Usuarios Activos",
+            value: stats.activeUsers || 0,
+            percentage: "+5%",
+        },
+        {
+            title: "Administradores",
+            value: stats.admins || 0,
+            percentage: "",
+        },
+    ];
+
+    if (loading) {
+        return (
+            <AdminLayout>
+                <div className="flex items-center justify-center py-20">
+                    <p className="text-white">Cargando usuarios...</p>
+                </div>
+            </AdminLayout>
+        );
+    }
 
     return (
         <AdminLayout>
@@ -197,9 +328,12 @@ const UsersPage = () => {
                 >
                     <form onSubmit={handleSubmitUser} className="space-y-4">
                         <input
-                            value={formData.name}
+                            value={formData.fullName}
                             onChange={(event) =>
-                                setFormData((prev) => ({ ...prev, name: event.target.value }))
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    fullName: event.target.value,
+                                }))
                             }
                             placeholder="Nombre completo"
                             className="h-[42px] w-full rounded-[8px] border border-white/10 bg-black px-4 font-[Open_Sans] text-white outline-none"
@@ -208,7 +342,10 @@ const UsersPage = () => {
                         <input
                             value={formData.email}
                             onChange={(event) =>
-                                setFormData((prev) => ({ ...prev, email: event.target.value }))
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    email: event.target.value,
+                                }))
                             }
                             placeholder="Correo electrónico"
                             className="h-[42px] w-full rounded-[8px] border border-white/10 bg-black px-4 font-[Open_Sans] text-white outline-none"
@@ -217,14 +354,18 @@ const UsersPage = () => {
                         <select
                             value={formData.role}
                             onChange={(event) =>
-                                setFormData((prev) => ({ ...prev, role: event.target.value }))
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    role: event.target.value,
+                                }))
                             }
                             className="h-[42px] w-full rounded-[8px] border border-white/10 bg-black px-4 font-[Open_Sans] text-white outline-none"
                         >
-                            <option>Administrador</option>
-                            <option>Editor</option>
-                            <option>Cliente VIP</option>
-                            <option>Cliente</option>
+                            {roles.map((role) => (
+                                <option key={role} value={role}>
+                                    {role}
+                                </option>
+                            ))}
                         </select>
 
                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

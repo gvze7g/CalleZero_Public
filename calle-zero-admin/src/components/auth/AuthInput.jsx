@@ -1,44 +1,54 @@
-import React from "react";
+import React, { useState } from "react";
 
 const AuthInput = ({
   label,
   type = "text",
+  name,
+  value,
+  onChange,
   placeholder,
   icon: Icon,
   rightElement,
-  value,
-  onChange,
-  name,
-  required = false,
 }) => {
+  const [showPassword, setShowPassword] = useState(false);
+
+  const inputType = type === "password" && showPassword ? "text" : type;
+
   return (
     <div className="space-y-2">
-      <label className="block font-[Open_Sans] text-[14px] font-bold text-white/95">
-        {label}
-      </label>
+      {label && (
+        <label className="block font-[Open_Sans] text-[13px] sm:text-[14px] font-semibold text-white/85">
+          {label}
+        </label>
+      )}
 
-      <div className="relative">
-        {Icon ? (
-          <div className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/65">
-            <Icon size={18} strokeWidth={2} />
-          </div>
-        ) : null}
+      <div className="relative flex items-center">
+        {Icon && (
+          <Icon
+            size={18}
+            strokeWidth={2}
+            className="absolute left-3 sm:left-4 text-white/40 pointer-events-none"
+          />
+        )}
 
         <input
+          type={inputType}
           name={name}
           value={value}
           onChange={onChange}
-          required={required}
-          type={type}
           placeholder={placeholder}
-          className="h-[44px] w-full rounded-[12px] border border-[#5F5877] bg-black px-12 pr-12 font-[Open_Sans] text-[15px] text-white outline-none transition placeholder:text-white/45 focus:border-[#B56CFF]"
+          className="w-full h-[44px] sm:h-[46px] rounded-[10px] border border-white/10 bg-[#0F0F0F] pl-10 sm:pl-12 pr-4 font-[Open_Sans] text-[14px] sm:text-[15px] text-white placeholder-white/40 outline-none transition focus:border-white/20 focus:bg-[#171724]"
         />
 
-        {rightElement ? (
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/65">
+        {rightElement && type === "password" && (
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 sm:right-4 text-white/40 hover:text-white/60 transition"
+          >
             {rightElement}
-          </div>
-        ) : null}
+          </button>
+        )}
       </div>
     </div>
   );

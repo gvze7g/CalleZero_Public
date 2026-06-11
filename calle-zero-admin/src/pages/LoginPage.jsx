@@ -14,6 +14,8 @@ const LoginPage = () => {
     password: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   // Manejo de inputs
   const handleChange = (e) => {
     setForm({
@@ -29,8 +31,10 @@ const LoginPage = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
-      const res = await fetch("http://localhost:3000/api/admin/login", {
+      const res = await fetch("http://localhost:4000/api/loginAdmin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -46,6 +50,7 @@ const LoginPage = () => {
 
       if (!res.ok) {
         toast.error(data.message || "Error al iniciar sesión");
+        setLoading(false);
         return;
       }
 
@@ -58,6 +63,7 @@ const LoginPage = () => {
     } catch (error) {
       console.error(error);
       toast.error("Error al conectar con el servidor");
+      setLoading(false);
     }
   };
 
@@ -74,6 +80,7 @@ const LoginPage = () => {
               onChange={handleChange}
               onLogin={handleLogin}
               onForgotPassword={() => navigate("/forgot-password")}
+              loading={loading}
             />
           </div>
         </main>

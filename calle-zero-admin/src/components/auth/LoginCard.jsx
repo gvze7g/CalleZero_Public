@@ -1,32 +1,25 @@
-import React, { useState } from "react";
-import { Mail, Lock, Eye, Shield } from "lucide-react";
+import React from "react";
+import { Mail, Lock, Eye, Shield, Loader } from "lucide-react";
 import { toast } from "sonner";
 import AuthInput from "./AuthInput";
 
-const LoginCard = ({ onForgotPassword, onLogin }) => {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+const LoginCard = ({ 
+  email, 
+  password, 
+  onChange, 
+  onForgotPassword, 
+  onLogin,
+  loading 
+}) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    if (!formData.email.trim() || !formData.password.trim()) {
+    if (!email.trim() || !password.trim()) {
       toast.error("Debes llenar el correo y la contraseña");
       return;
     }
 
-    toast.success("Inicio de sesión correcto");
     onLogin();
   };
 
@@ -52,8 +45,8 @@ const LoginCard = ({ onForgotPassword, onLogin }) => {
           label="Correo Electrónico"
           type="email"
           name="email"
-          value={formData.email}
-          onChange={handleChange}
+          value={email}
+          onChange={onChange}
           placeholder="nombre@callezero.com"
           icon={Mail}
         />
@@ -62,8 +55,8 @@ const LoginCard = ({ onForgotPassword, onLogin }) => {
           label="Contraseña"
           type="password"
           name="password"
-          value={formData.password}
-          onChange={handleChange}
+          value={password}
+          onChange={onChange}
           placeholder="••••••••"
           icon={Lock}
           rightElement={<Eye size={18} strokeWidth={2} />}
@@ -89,9 +82,11 @@ const LoginCard = ({ onForgotPassword, onLogin }) => {
 
         <button
           type="submit"
-          className="h-[48px] sm:h-[50px] w-full rounded-[12px] bg-[#B57AF6] font-[Montserrat] text-[15px] sm:text-[16px] font-extrabold text-[#1C1023] shadow-[0_10px_25px_rgba(181,122,246,0.3)] transition hover:brightness-105"
+          disabled={loading}
+          className="h-[48px] sm:h-[50px] w-full rounded-[12px] bg-[#B57AF6] font-[Montserrat] text-[15px] sm:text-[16px] font-extrabold text-[#1C1023] shadow-[0_10px_25px_rgba(181,122,246,0.3)] transition hover:brightness-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          Iniciar Sesión
+          {loading && <Loader size={18} className="animate-spin" />}
+          {loading ? "Iniciando..." : "Iniciar Sesión"}
         </button>
       </form>
 

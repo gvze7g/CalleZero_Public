@@ -12,6 +12,7 @@ import loginAdminRoutes from "./src/routes/loginAdmin.js"
 import loginUsersRoutes from "./src/routes/loginUser.js";
 import logoutRoutes from "./src/routes/logout.js"
 import adminUsersRoutes from "./src/routes/adminUsersRoutes.js"
+import recoveryAdminRoutes from "./src/routes/recoveryAdminRoutes.js"
 import cors from "cors";
 
 const app = express();
@@ -35,5 +36,6 @@ app.use("/api/loginAdmin", loginAdminRoutes);
 app.use("/api/loginUsers", loginUsersRoutes);
 app.use("/api/logout", logoutRoutes)
 app.use("/api/admin/users", adminUsersRoutes);
+app.use("/api/admin/recovery", recoveryAdminRoutes);
 
 export default app;

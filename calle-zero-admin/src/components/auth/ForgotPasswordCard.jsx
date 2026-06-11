@@ -1,21 +1,44 @@
 import React, { useState } from "react";
-import { Mail, ChevronLeft } from "lucide-react";
+import { Mail, ChevronLeft, Loader } from "lucide-react";
 import { toast } from "sonner";
 import AuthInput from "./AuthInput";
 
-const ForgotPasswordCard = ({ onBackToLogin }) => {
+const ForgotPasswordCard = ({ onBackToLogin, onCodeSent }) => {
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!email.trim()) {
-      toast.error("Debes ingresar tu correo electrónico");
+      toast.error("Ingresa tu correo electrónico");
       return;
     }
 
-    toast.success("Mensaje enviado correctamente");
-    setEmail("");
+    setLoading(true);
+
+    try {
+      const res = await fetch("http://localhost:4000/api/admin/recovery/request-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        toast.success("Código enviado a tu correo");
+        setTimeout(() => onCodeSent?.(), 600);
+      } else {
+        toast.error(data.message || "Error al enviar código");
+      }
+    } catch (error) {
+      toast.error("Error de conexión");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -28,8 +51,7 @@ const ForgotPasswordCard = ({ onBackToLogin }) => {
         </h1>
 
         <p className="mx-auto mt-4 max-w-[320px] font-[Open_Sans] text-[15px] leading-6 text-white/65">
-          Ingresa tu correo electrónico y te enviaremos un enlace para
-          restablecer tu acceso.
+          Ingresa tu correo electrónico y te enviaremos un código para verificar tu identidad.
         </p>
       </div>
 
@@ -45,9 +67,11 @@ const ForgotPasswordCard = ({ onBackToLogin }) => {
 
         <button
           type="submit"
-          className="h-[50px] w-full rounded-[12px] bg-[#B57AF6] font-[Montserrat] text-[16px] font-extrabold text-[#1C1023] shadow-[0_10px_25px_rgba(181,122,246,0.32)] transition hover:brightness-105"
+          disabled={loading}
+          className="h-[50px] w-full rounded-[12px] bg-[#B57AF6] font-[Montserrat] text-[16px] font-extrabold text-[#1C1023] shadow-[0_10px_25px_rgba(181,122,246,0.32)] transition hover:brightness-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          Enviar enlace de recuperación
+          {loading && <Loader size={18} className="animate-spin" />}
+          {loading ? "Enviando..." : "Enviar Código"}
         </button>
       </form>
 

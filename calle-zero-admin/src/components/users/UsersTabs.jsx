@@ -1,6 +1,6 @@
 import React from "react";
 
-const tabs = ["Todos", "Administradores", "Clientes vip", "Clientes"];
+const tabs = ["Todos", "Administradores", "Clientes"];
 
 const UsersTabs = ({ activeTab, onChangeTab }) => {
     return (

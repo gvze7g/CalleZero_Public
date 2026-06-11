@@ -11,6 +11,8 @@ import UsersPage from "./pages/UsersPage";
 import CategoriesPage from "./pages/CategoriesPage";
 import AddProductPage from "./pages/AddProductPage";
 import ProfilePage from "./pages/ProfilePage";
+import VerifyCodePage from "./pages/VerifyCodePage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 const App = () => {
   return (
@@ -41,6 +43,8 @@ const App = () => {
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/add-product" element={<AddProductPage />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="/verify-code" element={<VerifyCodePage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Routes>
       </BrowserRouter>
     </>

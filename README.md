@@ -1,4 +1,4 @@
-# Calle Zero 
+# Calle Zero
 
 ## Integrantes
 
@@ -9,41 +9,148 @@
 
 ---
 
-## Descripción del Proyecto
+## Descripción del proyecto
 
-Calle Zero es una aplicación web desarrollada como un sistema de tienda de ropa streetwear.  
-El proyecto incluye tanto una interfaz pública (para clientes) como un panel administrativo.
+Calle Zero es una aplicación web de tipo e-commerce enfocada en ropa streetwear.
 
-El objetivo principal es permitir la gestión y visualización de productos de manera interactiva, ofreciendo una experiencia moderna, responsive y dinámica.
+El sistema está compuesto por tres partes principales:
 
-La aplicación permite:
+- Frontend público (tienda para clientes)
+- Panel administrativo (gestión interna)
+- Backend API REST (Node.js + Express + MongoDB)
 
-- Navegar productos y categorías
-- Visualizar detalles de productos
-- Simular un carrito de compras
-- Gestionar productos, usuarios y órdenes (panel admin)
-- Interacción mediante formularios, botones y notificaciones
+El objetivo del proyecto es simular una tienda en línea funcional, permitiendo la gestión de productos, usuarios y órdenes, además de la experiencia de compra y navegación por parte de los clientes.
 
 ---
 
-## Tecnologías Utilizadas
+## Tecnologías utilizadas
 
-- React
-- Vite
+### Frontend
+- React (Vite)
 - React Router DOM
 - Tailwind CSS
-- Sonner (para notificaciones)
-- Lucide React (iconos)
+- Sonner
+- Lucide React
+
+### Backend
+- Node.js (ESModules)
+- Express
+- MongoDB + Mongoose
+- JWT
+- bcryptjs
+- cookie-parser
+- cors
+- dotenv
+- multer
+- multer-storage-cloudinary
+- Cloudinary
+- nodemailer
+- express-rate-limit
+- node-fetch
 
 ---
 
-## Características Principales
+## Estructura del proyecto
 
-- Diseño completamente responsive (mobile, tablet y desktop)
-- Navegación fluida con React Router
-- Componentes reutilizables
-- Interactividad en botones, formularios y filtros
-- Simulación de funcionalidades sin backend
-- Notificaciones visuales para acciones del usuario
-- Filtros dinámicos en productos y órdenes
-- Modales para acciones como ver detalles o agregar elementos
+calle-zero/
+│
+├── backend/
+│   ├── controllers/
+│   ├── middlewares/
+│   ├── models/
+│   ├── routes/
+│   ├── utils/
+│   └── index.js
+│
+├── calleZero/
+│   ├── components/
+│   ├── assets/
+│   ├── data/
+│   ├── pages/
+│
+├── calle-zero-admin/
+│   ├── components/
+│   ├── assets/
+│   ├── data/
+│   ├── pages/
+│
+└── README.md
+
+---
+
+## Funcionalidades
+
+### Aplicación pública (calleZero)
+
+- Visualización de productos
+- Filtros por categoría
+- Detalle de productos
+- Carrito de compras simulado
+- Registro e inicio de sesión
+- Interfaz responsiva
+
+### Panel administrativo (calle-zero-admin)
+
+- Gestión de productos (crear, editar, eliminar)
+- Gestión de usuarios
+- Gestión de órdenes
+- Subida de imágenes
+- Panel de control
+
+### Backend
+
+- API REST con Express
+- Autenticación con JWT
+- CRUD de productos, usuarios y órdenes
+- Integración con Cloudinary
+- Envío de correos con Nodemailer
+- Protección de rutas con middlewares
+- Rate limiting para seguridad
+
+---
+
+## Instalación y ejecución
+
+### Requisitos
+
+- Node.js
+- MongoDB (local o Atlas)
+
+---
+
+### Backend (puerto 4000)
+
+cd backend  
+npm install  
+npm run dev  
+
+Servidor: http://localhost:4000  
+
+---
+
+### Frontend público (calleZero)
+
+cd calleZero  
+npm install  
+npm run dev  
+
+Servidor: http://localhost:5173  
+
+---
+
+### Panel administrativo (calle-zero-admin)
+
+cd calle-zero-admin  
+npm install  
+npm run dev  
+
+Servidor: http://localhost:5174  
+
+---
+
+## Notas importantes
+
+- El backend corre en el puerto 4000
+- Se requiere conexión a MongoDB
+- Las imágenes se almacenan en Cloudinary
+- Ambos frontends consumen la misma API

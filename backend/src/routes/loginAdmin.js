@@ -10,7 +10,7 @@ router.route("/").post(loginAdminController.login);
 // Crear usuario admin
 router.post("/register", async (req, res) => {
   try {
-    console.log("📍 POST /register recibido:", req.body);
+    console.log(" POST /register recibido:", req.body);
     
     const { email, password, name } = req.body;
 
@@ -20,7 +20,7 @@ router.post("/register", async (req, res) => {
 
     const userExists = await userModel.findOne({ email }); // ← CAMBIAR AQUÍ
     if (userExists) {
-      console.log("❌ Usuario ya existe:", email);
+      console.log(" Usuario ya existe:", email);
       return res.status(400).json({ message: "Usuario ya existe" });
     }
 
@@ -34,7 +34,7 @@ router.post("/register", async (req, res) => {
       timeOut: null
     });
 
-    console.log("✅ Usuario creado:", email);
+    console.log(" Usuario creado:", email);
 
     return res.status(201).json({
       message: "Usuario creado exitosamente",
@@ -42,7 +42,7 @@ router.post("/register", async (req, res) => {
     });
 
   } catch (error) {
-    console.log("💥 Error creating user:", error);
+    console.log(" Error creating user:", error);
     return res.status(500).json({ message: "Error al crear usuario", error: error.message });
   }
 });

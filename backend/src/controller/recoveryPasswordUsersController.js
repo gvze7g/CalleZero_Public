@@ -1,49 +1,40 @@
-import jsonbwebtoken from "jsonwebtoken"; //generar tokens
-import bcrypt from "bcryptjs"; //encriptar la nueva contraseña
-import crypto from "crypto"; //generar códigos aleatorios
-import nodemailer from "nodemailer"; //enviar correos
-import HTMLRecoveryEmail from "../utils/sendMailRecoveryPassword.js";
-
+import jsonwebtoken from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import crypto from "crypto";
+import nodemailer from "nodemailer";
 import { config } from "../config.js";
-
 import UsersModel from "../models/users.js";
 
-//Array de funciones
 const recoveryPasswordUsersController = {};
 
+// Paso 1: Enviar código de recuperación
 recoveryPasswordUsersController.requestCode = async (req, res) => {
   try {
-    //Solicitamos los datos
+    console.log("POST /forgot-password recibido");
+
     const { email } = req.body;
 
-    //Validar que el correo si esté en la BD
-    const userFound = await UsersModel.findOne({ email });
-
- 
-
-    if (!userFound) {
-      return res.status(404).json({ message: "user not found" });
+    if (!email) {
+      return res.status(400).json({ message: "Correo requerido" });
     }
 
-    //generar el número aleatorio
-    const randomCode = crypto.randomBytes(3).toString("hex");
+    // Validar que el correo exista
+    const userFound = await UsersModel.findOne({ email });
 
-    //Guardamos todo en un token
-    const token = jsonbwebtoken.sign(
-      //#1- ¿que vamos a guardar?
-      { email, randomCode, userType: userType, verified: false },
-      //#2- Secreat key
-      config.JWT.secret,
-      //#3- Cuando expira
-      { expiresIn: "30d" },
-    );
+    if (!userFound) {
+      return res.status(404).json({ message: "Correo no encontrado" });
+    }
 
-    res.cookie("recoveryCookie", token, { maxAge: 15 * 60 * 1000 });
+    // Generar código aleatorio
+    const randomCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const codeExpiry = Date.now() + 10 * 60 * 1000; // 10 minutos
 
-    //Enviamos por correo electrónico
-    //el código aleatorio que generamos
+    // Guardar código y expiry en la BD
+    userFound.recoveryCode = randomCode;
+    userFound.recoveryCodeExpiry = codeExpiry;
+    await userFound.save();
 
-    //#1- ¿Quien lo envía?
+    // Configurar nodemailer
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -52,99 +43,77 @@ recoveryPasswordUsersController.requestCode = async (req, res) => {
       },
     });
 
-    //#2-Quien lo recibe y como
+    // Enviar correo
     const mailOptions = {
       from: config.email.user_email,
       to: email,
-      subject: "Código de recuperación de contraseña",
-      body: "El código vence en 15 minutos",
-      html: HTMLRecoveryEmail(randomCode),
+      subject: "Codigo de Recuperacion - Calle Zero",
+      html: `
+        <h2>Recuperar Contraseña</h2>
+        <p>Tu codigo de verificacion es:</p>
+        <h1 style="color: #B56CFF;">${randomCode}</h1>
+        <p>Este codigo expira en 10 minutos</p>
+      `,
     };
 
-    //#3- Enviar el correo
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        return res.status(500).json({ message: "Error al enviar correo" });
+        console.error("Error enviando correo:", error);
+        return res.status(500).json({ message: "Error al enviar codigo" });
       }
+      console.log("Codigo enviado a:", email);
     });
 
-    return res.status(200).json({ message: "email sent" });
+    return res.status(200).json({ message: "Codigo enviado a tu correo" });
   } catch (error) {
-    console.log("error" + error);
-    return res.status(500).json({ message: "Intenal server error" });
+    console.error("Error en requestCode:", error);
+    return res.status(500).json({ message: "Error al solicitar codigo" });
   }
 };
 
+// Paso 2: Verificar código y cambiar contraseña
 recoveryPasswordUsersController.verifyCode = async (req, res) => {
   try {
-    //#1-Solicitamos los datos
-    const { code } = req.body;
+    console.log("POST /verify-code recibido");
 
-    //Obtenemos la información que está dentro del token
-    //Accedemos a la cookie
-    const token = req.cookies.recoveryCookie;
-    const decoded = jsonbwebtoken.verify(token, config.JWT.secret);
+    const { email, code, newPassword } = req.body;
 
-    if (code !== decoded.randomCode) {
-      return res.status(400).json({ message: "Invalid code" });
+    if (!email || !code || !newPassword) {
+      return res.status(400).json({ message: "Faltan campos requeridos" });
     }
 
-    //En cambio, si escribe bien el código,
-    //vamos a colocar en el token que ya está verificado
-    const newToken = jsonbwebtoken.sign(
-      //#1- ¿Que vamos a guardar?
-      { email: decoded.email, userType: "customer", verified: true },
-      //#2-secret key
-      config.JWT.secret,
-      //#3- ¿Cúando expira?
-      { expiresIn: "15m" },
-    );
+    // Buscar usuario
+    const user = await UsersModel.findOne({ email });
 
-    res.cookie("recoveryCookie", newToken, { maxAge: 15 * 60 * 1000 });
-
-    return res.status(200).json({ message: "Code verified successfully" });
-  } catch (error) {
-    console.log("error" + error);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-
-
-recoveryPasswordUsersController.newPassword = async (req, res) => {
-  try {
-    //#1- Solicito los datos
-    const { newPassword, confirmNewPassword } = req.body;
-
-    //Comparar las dos contraseñas
-    if (newPassword !== confirmNewPassword) {
-      return res.status(400).json({ message: "passwords doesnt match" });
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    //vamos a comprobar que el token ya está verificado
-    const token = req.cookies.recoveryCookie;
-    const decoded = jsonbwebtoken.verify(token, config.JWT.secret);
-
-    if (!decoded.verified) {
-      return res.status(400).json({ message: "code not virified" });
+    // Verificar código
+    if (user.recoveryCode !== code) {
+      return res.status(400).json({ message: "Codigo incorrecto" });
     }
 
-    /////
-    //Encriptar la contraseña
+    // Verificar si el código expiró
+    if (user.recoveryCodeExpiry < Date.now()) {
+      return res.status(400).json({ message: "Codigo expirado" });
+    }
+
+    // Encriptar nueva contraseña
     const passwordHash = await bcrypt.hash(newPassword, 10);
 
-    await UsersModel.findOneAndUpdate(
-      { email: decoded.email },
-      { password: passwordHash },
-      { new: true },
-    );
+    // Actualizar contraseña y limpiar código
+    user.password = passwordHash;
+    user.recoveryCode = null;
+    user.recoveryCodeExpiry = null;
+    await user.save();
 
-    res.clearCookie("recoveryCookie");
+    console.log("Contraseña actualizada para:", email);
 
-    return res.status(200).json({ message: "Password updated" });
+    return res.status(200).json({ message: "Contraseña actualizada correctamente" });
   } catch (error) {
-    console.log("error" + error);
-    return res.status(500).json({ message: "Internal server error" });
+    console.error("Error en verifyCode:", error);
+    return res.status(500).json({ message: "Error al actualizar contraseña" });
   }
 };
 

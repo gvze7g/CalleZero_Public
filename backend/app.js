@@ -13,11 +13,13 @@ import loginUsersRoutes from "./src/routes/loginUser.js";
 import logoutRoutes from "./src/routes/logout.js"
 import adminUsersRoutes from "./src/routes/adminUsersRoutes.js"
 import recoveryAdminRoutes from "./src/routes/recoveryAdminRoutes.js"
+import recoveryUsersRoutes from "./src/routes/recoveryUserRoutes.js"
+import userProfileRoutes from "./src/routes/userProfile.js"
 import cors from "cors";
 
 const app = express();
 
-console.log("✅ app.js cargado");
+console.log("app.js cargado");
 
 app.use(cors({
     origin: ["http://localhost:5173", "http://localhost:5174"],
@@ -34,15 +36,17 @@ app.use("/api/categories", categoriesRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/product", productRoute);
 app.use("/api/promotion", promotionRoute);
-app.use("/api/user",usersRoute);
+app.use("/api/user", usersRoute);
 app.use("/api/registerUser", registerUsers);
+app.use("/api/loginUser", loginUsersRoutes);
 app.use("/api/loginAdmin", loginAdminRoutes);
-app.use("/api/loginUsers", loginUsersRoutes);
-app.use("/api/logout", logoutRoutes)
+app.use("/api/logout", logoutRoutes);
+app.use("/api/users", userProfileRoutes);
+app.use("/api/users", recoveryUsersRoutes);
 app.use("/api/admin/users", adminUsersRoutes);
 app.use("/api/admin/recovery", recoveryAdminRoutes);
 
-console.log("✅ Todas las rutas registradas");
-console.log("✅ /api/loginAdmin disponible");
+console.log("Todas las rutas registradas");
+console.log("/api/loginAdmin disponible");
 
 export default app;

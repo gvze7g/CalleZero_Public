@@ -1,8 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useRef, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Menu, Search, ShoppingCart, X } from "lucide-react";
+import { Menu, Search, ShoppingCart, X, LogOut, User } from "lucide-react";
 import { initialCart } from "../../data/cartData";
+import { toast } from "sonner";
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -10,6 +11,9 @@ const Navbar = () => {
 
     const [menuOpen, setMenuOpen] = useState(false);
     const [indicatorStyle, setIndicatorStyle] = useState({});
+    const [userData, setUserData] = useState(null);
+    const [isLoadingUser, setIsLoadingUser] = useState(true);
+    const [profileOpen, setProfileOpen] = useState(false);
     const linksRef = useRef({});
 
     const cartCount = initialCart.reduce((total, item) => total + item.quantity, 0);
@@ -21,9 +25,65 @@ const Navbar = () => {
         { path: "/contact", label: "Contacto" },
     ];
 
+    useEffect(() => {
+        loadUserData();
+    }, []);
+
+    const loadUserData = async () => {
+        try {
+            const response = await fetch("http://localhost:4000/api/users/me", {
+                method: "GET",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Usuario logueado:", data);
+                setUserData(data);
+            }
+        } catch (error) {
+            console.error("No hay usuario logueado:", error);
+        } finally {
+            setIsLoadingUser(false);
+        }
+    };
+
+    const handleLogout = async () => {
+        try {
+            const response = await fetch("http://localhost:4000/api/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+
+            if (response.ok) {
+                toast.success("Sesión cerrada");
+                setUserData(null);
+                setProfileOpen(false);
+                navigate("/");
+            }
+        } catch (error) {
+            console.error("Error al cerrar sesión:", error);
+            toast.error("Error al cerrar sesión");
+        }
+    };
+
+    const getInitials = () => {
+        if (!userData?.fullName) return "U";
+        return userData.fullName
+            .split(" ")
+            .map((word) => word[0])
+            .join("")
+            .toUpperCase()
+            .slice(0, 2);
+    };
+
     const goTo = (path) => {
         navigate(path);
         setMenuOpen(false);
+        setProfileOpen(false);
     };
 
     useEffect(() => {
@@ -104,13 +164,53 @@ const Navbar = () => {
                             </span>
                         </button>
 
-                        <button
-                            type="button"
-                            onClick={() => goTo("/login")}
-                            className="hidden rounded-full border border-purple-500 px-4 py-2 font-[Montserrat] text-sm text-purple-500 transition hover:bg-purple-500 hover:text-black md:block"
-                        >
-                            Iniciar Sesión
-                        </button>
+                        {!isLoadingUser && userData ? (
+                            <div className="relative">
+                                <button
+                                    type="button"
+                                    onClick={() => setProfileOpen(!profileOpen)}
+                                    className="flex items-center gap-2 rounded-full border border-purple-500 px-3 py-2 transition hover:bg-purple-500/10 hidden md:flex"
+                                >
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-500 text-black font-bold text-sm">
+                                        {getInitials()}
+                                    </div>
+                                    <span className="text-sm text-white">{userData.fullName?.split(" ")[0]}</span>
+                                </button>
+
+                                {profileOpen && (
+                                    <div className="absolute right-0 top-12 w-48 rounded-2xl border border-white/10 bg-[#111] shadow-[0_10px_40px_rgba(168,85,247,0.25)]">
+                                        <div className="border-b border-white/10 px-4 py-3">
+                                            <p className="font-bold text-white text-sm">{userData.fullName}</p>
+                                            <p className="text-xs text-white/50">{userData.email}</p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => goTo("/profile")}
+                                            className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-white hover:bg-white/5 transition"
+                                        >
+                                            <User size={16} />
+                                            Mi Perfil
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={handleLogout}
+                                            className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-red-400 hover:bg-red-500/10 transition border-t border-white/10"
+                                        >
+                                            <LogOut size={16} />
+                                            Cerrar Sesión
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ) : !isLoadingUser ? (
+                            <button
+                                type="button"
+                                onClick={() => goTo("/login")}
+                                className="hidden rounded-full border border-purple-500 px-4 py-2 font-[Montserrat] text-sm text-purple-500 transition hover:bg-purple-500 hover:text-black md:block"
+                            >
+                                Iniciar Sesión
+                            </button>
+                        ) : null}
 
                         <button
                             type="button"
@@ -178,21 +278,48 @@ const Navbar = () => {
                                 </div>
 
                                 <div className="space-y-3 border-t border-white/10 pt-6">
-                                    <button
-                                        type="button"
-                                        onClick={() => goTo("/login")}
-                                        className="w-full rounded-2xl bg-purple-500 px-5 py-4 font-[Montserrat] font-bold text-black transition hover:brightness-110"
-                                    >
-                                        Iniciar Sesión
-                                    </button>
+                                    {userData ? (
+                                        <>
+                                            <div className="rounded-2xl bg-purple-500/10 px-5 py-4 border border-purple-500/30">
+                                                <p className="font-bold text-white text-sm">{userData.fullName}</p>
+                                                <p className="text-xs text-white/60">{userData.email}</p>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => goTo("/profile")}
+                                                className="w-full rounded-2xl bg-purple-500 px-5 py-4 font-[Montserrat] font-bold text-black transition hover:brightness-110 flex items-center justify-center gap-2"
+                                            >
+                                                <User size={18} />
+                                                Mi Perfil
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={handleLogout}
+                                                className="w-full rounded-2xl border border-red-500/30 px-5 py-4 font-[Montserrat] font-bold text-red-400 transition hover:bg-red-500/10 flex items-center justify-center gap-2"
+                                            >
+                                                <LogOut size={18} />
+                                                Cerrar Sesión
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <button
+                                                type="button"
+                                                onClick={() => goTo("/login")}
+                                                className="w-full rounded-2xl bg-purple-500 px-5 py-4 font-[Montserrat] font-bold text-black transition hover:brightness-110"
+                                            >
+                                                Iniciar Sesión
+                                            </button>
 
-                                    <button
-                                        type="button"
-                                        onClick={() => goTo("/register")}
-                                        className="w-full rounded-2xl border border-white/10 px-5 py-4 font-[Montserrat] font-bold text-white transition hover:border-purple-500 hover:text-purple-500"
-                                    >
-                                        Crear Cuenta
-                                    </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => goTo("/register")}
+                                                className="w-full rounded-2xl border border-white/10 px-5 py-4 font-[Montserrat] font-bold text-white transition hover:border-purple-500 hover:text-purple-500"
+                                            >
+                                                Crear Cuenta
+                                            </button>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         </aside>

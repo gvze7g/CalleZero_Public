@@ -5,6 +5,9 @@ const UsersSchema = new Schema({
         type: String, 
         required: true 
     },
+    name: { 
+        type: String
+    },
     email: { 
         type: String, 
         required: true, 
@@ -14,10 +17,25 @@ const UsersSchema = new Schema({
         type: String, 
         required: true 
     },
+    phone: { 
+        type: String,
+        default: ""
+    },
+    location: { 
+        type: String,
+        default: ""
+    },
+    recoveryCode: {
+        type: String,
+        default: null
+    },
+    recoveryCodeExpiry: {
+        type: Date,
+        default: null
+    },
     role: { 
         type: Schema.Types.ObjectId, 
-        ref: "Role",
-        required: true 
+        ref: "Role"
     },
     isActive: { 
         type: Boolean, 
@@ -26,6 +44,14 @@ const UsersSchema = new Schema({
     isVerified: { 
         type: Boolean, 
         default: false 
+    },
+    loginAttempts: {
+        type: Number,
+        default: 0
+    },
+    timeOut: {
+        type: Date,
+        default: null
     },
     lastActivity: { 
         type: Date, 

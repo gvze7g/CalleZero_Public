@@ -3,8 +3,6 @@ import registerUserController from "../controller/registerUsersController.js";
 
 const router = express.Router();
 
-router.route("/")
-.post(registerUserController.register);
-router.route("/verifyCodeEmail").post(registerUserController.verifyCode);
+router.post("/", registerUserController.register);
 
 export default router;

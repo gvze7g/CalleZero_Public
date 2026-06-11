@@ -9,11 +9,13 @@ import logo from "../assets/logo-1.png";
 
 const Register = () => {
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
 
     const [form, setForm] = useState({
-        name: "",
+        fullName: "",
         email: "",
         password: "",
+        confirmPassword: "",
         accepted: false,
     });
 
@@ -26,24 +28,63 @@ const Register = () => {
         });
     };
 
-    const handleRegister = (event) => {
+    const handleRegister = async (event) => {
         event.preventDefault();
 
-        if (!form.name.trim() || !form.email.trim() || !form.password.trim()) {
+        if (!form.fullName.trim() || !form.email.trim() || !form.password.trim()) {
             toast.error("Debes completar todos los campos");
             return;
         }
 
         if (!form.accepted) {
-            toast.error("Debes aceptar los términos y condiciones");
+            toast.error("Debes aceptar los terminos y condiciones");
             return;
         }
 
-        toast.success("Cuenta creada correctamente");
+        if (form.password !== form.confirmPassword) {
+            toast.error("Las contraseñas no coinciden");
+            return;
+        }
 
-        setTimeout(() => {
-            navigate("/login");
-        }, 700);
+        if (form.password.length < 6) {
+            toast.error("La contraseña debe tener al menos 6 caracteres");
+            return;
+        }
+
+        setIsLoading(true);
+
+        try {
+            const response = await fetch("http://localhost:4000/api/registerUser", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    fullName: form.fullName,
+                    email: form.email,
+                    password: form.password,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                toast.error(data.message || "Error al crear cuenta");
+                return;
+            }
+
+            toast.success("Cuenta creada correctamente");
+
+            setTimeout(() => {
+                navigate("/login");
+            }, 700);
+        } catch (error) {
+            console.error(error);
+            toast.error("Error al conectar con el servidor");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -52,7 +93,7 @@ const Register = () => {
                 onClick={() => navigate("/")}
                 className="absolute left-4 top-4 z-20 cursor-pointer text-[10px] text-white hover:text-purple-400 sm:left-6 sm:top-6 sm:text-xs"
             >
-                ← VOLVER AL INICIO
+                VOLVER AL INICIO
             </div>
 
             <form
@@ -76,10 +117,11 @@ const Register = () => {
 
                 <div className="space-y-4">
                     <Input
-                        label="Nombre"
-                        name="name"
-                        value={form.name}
+                        label="Nombre Completo"
+                        name="fullName"
+                        value={form.fullName}
                         onChange={handleChange}
+                        disabled={isLoading}
                     />
 
                     <Input
@@ -88,6 +130,7 @@ const Register = () => {
                         type="email"
                         value={form.email}
                         onChange={handleChange}
+                        disabled={isLoading}
                     />
 
                     <Input
@@ -96,6 +139,16 @@ const Register = () => {
                         type="password"
                         value={form.password}
                         onChange={handleChange}
+                        disabled={isLoading}
+                    />
+
+                    <Input
+                        label="Confirmar Contraseña"
+                        name="confirmPassword"
+                        type="password"
+                        value={form.confirmPassword}
+                        onChange={handleChange}
+                        disabled={isLoading}
                     />
                 </div>
 
@@ -106,15 +159,20 @@ const Register = () => {
                         checked={form.accepted}
                         onChange={handleChange}
                         className="accent-purple-500"
+                        disabled={isLoading}
                     />
-                    <span>Acepto términos y condiciones</span>
+                    <span>Acepto terminos y condiciones</span>
                 </div>
 
-                <Button text="Registrarse →" type="submit" />
+                <Button
+                    text={isLoading ? "Cargando..." : "Registrarse"}
+                    type="submit"
+                    disabled={isLoading}
+                />
 
                 <AuthFooterText
-                    text="¿Ya tienes cuenta?"
-                    actionText="Inicia sesión"
+                    text="Ya tienes cuenta?"
+                    actionText="Inicia sesion"
                     onClick={() => navigate("/login")}
                 />
             </form>

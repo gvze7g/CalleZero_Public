@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Navbar from "../components/layout/Navbar"
 import Footer from "../components/layout/Footer";
@@ -12,24 +13,164 @@ import {
     Save,
     ShieldCheck,
     User,
+    LogOut,
 } from "lucide-react";
 
 const Profile = () => {
+    const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+    const [userData, setUserData] = useState(null);
+    const [orderCount, setOrderCount] = useState(0);
+
     const [form, setForm] = useState({
-        name: "Eduardo Gálvez",
-        email: "eduardo@callezero.com",
-        phone: "+503 7000-0000",
-        city: "San Salvador, El Salvador",
+        fullName: "",
+        email: "",
+        phone: "",
+        location: "",
     });
+
+    useEffect(() => {
+        loadUserProfile();
+        loadOrderCount();
+    }, []);
+
+    const loadUserProfile = async () => {
+        try {
+            setIsLoading(true);
+            const response = await fetch("http://localhost:4000/api/users/me", {
+                method: "GET",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error("No autenticado");
+            }
+
+            const data = await response.json();
+            console.log("Perfil cargado:", data);
+
+            setUserData(data);
+            setForm({
+                fullName: data.fullName || "",
+                email: data.email || "",
+                phone: data.phone || "",
+                location: data.location || "",
+            });
+        } catch (error) {
+            console.error("Error cargando perfil:", error);
+            toast.error("Debes iniciar sesión para ver tu perfil");
+            navigate("/login");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const loadOrderCount = async () => {
+        try {
+            const response = await fetch("http://localhost:4000/api/orders", {
+                credentials: "include",
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setOrderCount(data.length || 0);
+            }
+        } catch (error) {
+            console.error("Error cargando ordenes:", error);
+        }
+    };
 
     const handleChange = (field, value) => {
         setForm((prev) => ({ ...prev, [field]: value }));
     };
 
-    const saveProfile = (e) => {
+    const saveProfile = async (e) => {
         e.preventDefault();
-        toast.success("Perfil actualizado correctamente");
+
+        if (!form.fullName.trim()) {
+            toast.error("El nombre es requerido");
+            return;
+        }
+
+        setIsSaving(true);
+
+        try {
+            const response = await fetch("http://localhost:4000/api/users/me", {
+                method: "PUT",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(form),
+            });
+
+            if (!response.ok) {
+                throw new Error("Error al actualizar");
+            }
+
+            const data = await response.json();
+            setUserData(data.user);
+            toast.success("Perfil actualizado correctamente");
+        } catch (error) {
+            console.error("Error:", error);
+            toast.error("Error al actualizar el perfil");
+        } finally {
+            setIsSaving(false);
+        }
     };
+
+    const handleLogout = async () => {
+        try {
+            await fetch("http://localhost:4000/api/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+
+            toast.success("Sesión cerrada");
+            navigate("/");
+        } catch (error) {
+            console.error("Error al cerrar sesión:", error);
+            toast.error("Error al cerrar sesión");
+        }
+    };
+
+    const getInitials = () => {
+        if (!form.fullName) return "U";
+        return form.fullName
+            .split(" ")
+            .map((word) => word[0])
+            .join("")
+            .toUpperCase()
+            .slice(0, 2);
+    };
+
+    if (isLoading) {
+        return (
+            <div className="bg-black text-white overflow-x-hidden">
+                <Navbar />
+                <main className="mx-auto max-w-6xl px-6 py-14 md:px-16 min-h-screen flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-2 border-purple-500 border-t-transparent"></div>
+                </main>
+                <Footer />
+            </div>
+        );
+    }
+
+    if (!userData) {
+        return (
+            <div className="bg-black text-white overflow-x-hidden">
+                <Navbar />
+                <main className="mx-auto max-w-6xl px-6 py-14 md:px-16 min-h-screen flex items-center justify-center">
+                    <p className="text-gray-400">No autenticado</p>
+                </main>
+                <Footer />
+            </div>
+        );
+    }
 
     return (
         <div className="bg-black text-white overflow-x-hidden">
@@ -43,9 +184,12 @@ const Profile = () => {
                         <div className="flex items-center gap-5">
                             <div className="relative">
                                 <div className="flex h-24 w-24 items-center justify-center rounded-full bg-purple-500 font-[Montserrat] text-3xl font-black text-black">
-                                    EG
+                                    {getInitials()}
                                 </div>
-                                <button className="absolute bottom-0 right-0 flex h-9 w-9 items-center justify-center rounded-full bg-black text-purple-500">
+                                <button 
+                                    type="button"
+                                    className="absolute bottom-0 right-0 flex h-9 w-9 items-center justify-center rounded-full bg-black text-purple-500 hover:bg-purple-500 hover:text-black transition"
+                                >
                                     <Camera size={16} />
                                 </button>
                             </div>
@@ -55,7 +199,7 @@ const Profile = () => {
                                     Mi cuenta
                                 </p>
                                 <h1 className="mt-2 font-[Montserrat] text-3xl font-black md:text-5xl">
-                                    Perfil de Usuario
+                                    {form.fullName}
                                 </h1>
                                 <p className="mt-2 font-[Open_Sans] text-sm text-gray-400">
                                     Administra tus datos personales y preferencias de compra.
@@ -75,7 +219,7 @@ const Profile = () => {
                         className="rounded-2xl border border-white/10 bg-[#111] p-6"
                     >
                         <h2 className="font-[Montserrat] text-2xl font-black">
-                            Información Personal
+                            Informacion Personal
                         </h2>
 
                         <div className="mt-6 grid gap-5 md:grid-cols-2">
@@ -85,56 +229,73 @@ const Profile = () => {
                                     Nombre completo
                                 </span>
                                 <input
-                                    value={form.name}
-                                    onChange={(e) => handleChange("name", e.target.value)}
-                                    className="h-12 w-full rounded-lg border border-white/10 bg-black px-4 font-[Open_Sans] outline-none focus:border-purple-500"
+                                    value={form.fullName}
+                                    onChange={(e) => handleChange("fullName", e.target.value)}
+                                    disabled={isSaving}
+                                    className="h-12 w-full rounded-lg border border-white/10 bg-black px-4 font-[Open_Sans] outline-none focus:border-purple-500 disabled:opacity-50"
                                 />
                             </label>
 
                             <label>
                                 <span className="mb-2 flex items-center gap-2 font-[Open_Sans] text-sm font-bold text-gray-300">
                                     <Mail size={16} />
-                                    Correo electrónico
+                                    Correo electronico (no editable)
                                 </span>
                                 <input
                                     value={form.email}
-                                    onChange={(e) => handleChange("email", e.target.value)}
-                                    className="h-12 w-full rounded-lg border border-white/10 bg-black px-4 font-[Open_Sans] outline-none focus:border-purple-500"
+                                    disabled
+                                    className="h-12 w-full rounded-lg border border-white/10 bg-black/50 px-4 font-[Open_Sans] outline-none text-white/50 cursor-not-allowed"
                                 />
                             </label>
 
                             <label>
                                 <span className="mb-2 flex items-center gap-2 font-[Open_Sans] text-sm font-bold text-gray-300">
                                     <Phone size={16} />
-                                    Teléfono
+                                    Telefono
                                 </span>
                                 <input
                                     value={form.phone}
                                     onChange={(e) => handleChange("phone", e.target.value)}
-                                    className="h-12 w-full rounded-lg border border-white/10 bg-black px-4 font-[Open_Sans] outline-none focus:border-purple-500"
+                                    disabled={isSaving}
+                                    placeholder="+503 0000-0000"
+                                    className="h-12 w-full rounded-lg border border-white/10 bg-black px-4 font-[Open_Sans] outline-none focus:border-purple-500 disabled:opacity-50"
                                 />
                             </label>
 
                             <label>
                                 <span className="mb-2 flex items-center gap-2 font-[Open_Sans] text-sm font-bold text-gray-300">
                                     <MapPin size={16} />
-                                    Ubicación
+                                    Ubicacion
                                 </span>
                                 <input
-                                    value={form.city}
-                                    onChange={(e) => handleChange("city", e.target.value)}
-                                    className="h-12 w-full rounded-lg border border-white/10 bg-black px-4 font-[Open_Sans] outline-none focus:border-purple-500"
+                                    value={form.location}
+                                    onChange={(e) => handleChange("location", e.target.value)}
+                                    disabled={isSaving}
+                                    placeholder="Ciudad, Pais"
+                                    className="h-12 w-full rounded-lg border border-white/10 bg-black px-4 font-[Open_Sans] outline-none focus:border-purple-500 disabled:opacity-50"
                                 />
                             </label>
                         </div>
 
-                        <button
-                            type="submit"
-                            className="mt-7 inline-flex items-center gap-2 rounded-lg bg-purple-500 px-6 py-3 font-[Montserrat] font-bold text-black"
-                        >
-                            <Save size={17} />
-                            Guardar Cambios
-                        </button>
+                        <div className="mt-7 flex gap-3">
+                            <button
+                                type="submit"
+                                disabled={isSaving}
+                                className="inline-flex items-center gap-2 rounded-lg bg-purple-500 px-6 py-3 font-[Montserrat] font-bold text-black hover:bg-purple-600 transition disabled:opacity-50"
+                            >
+                                <Save size={17} />
+                                {isSaving ? "Guardando..." : "Guardar Cambios"}
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={handleLogout}
+                                className="inline-flex items-center gap-2 rounded-lg border border-red-500/30 px-6 py-3 font-[Montserrat] font-bold text-red-400 hover:bg-red-500/10 transition"
+                            >
+                                <LogOut size={17} />
+                                Cerrar Sesion
+                            </button>
+                        </div>
                     </form>
 
                     <div className="space-y-6">
@@ -145,37 +306,37 @@ const Profile = () => {
 
                             <div className="mt-5 space-y-4">
                                 <div className="flex items-center gap-3">
-                                    <ShieldCheck className="text-purple-500" />
+                                    <ShieldCheck className="text-purple-500" size={20} />
                                     <div>
                                         <p className="font-[Open_Sans] text-sm font-bold">
-                                            Cuenta verificada
+                                            Cuenta {userData.isVerified ? "verificada" : "no verificada"}
                                         </p>
                                         <p className="text-xs text-gray-500">
-                                            Tus datos han sido confirmados.
+                                            {userData.isVerified ? "Tus datos han sido confirmados." : "Verifica tu correo."}
                                         </p>
                                     </div>
                                 </div>
 
                                 <div className="flex items-center gap-3">
-                                    <Package className="text-purple-500" />
+                                    <Package className="text-purple-500" size={20} />
                                     <div>
                                         <p className="font-[Open_Sans] text-sm font-bold">
-                                            4 pedidos realizados
+                                            {orderCount} {orderCount === 1 ? "pedido realizado" : "pedidos realizados"}
                                         </p>
                                         <p className="text-xs text-gray-500">
-                                            Último pedido hace 2 días.
+                                            {orderCount > 0 ? "Gracias por tus compras." : "Aun no has realizado pedidos."}
                                         </p>
                                     </div>
                                 </div>
 
                                 <div className="flex items-center gap-3">
-                                    <Bell className="text-purple-500" />
+                                    <Bell className="text-purple-500" size={20} />
                                     <div>
                                         <p className="font-[Open_Sans] text-sm font-bold">
                                             Notificaciones activas
                                         </p>
                                         <p className="text-xs text-gray-500">
-                                            Recibirás avisos sobre drops y pedidos.
+                                            Recibiras avisos sobre drops y pedidos.
                                         </p>
                                     </div>
                                 </div>
@@ -184,24 +345,24 @@ const Profile = () => {
 
                         <div className="rounded-2xl bg-purple-500 p-6 text-black">
                             <h3 className="font-[Montserrat] text-xl font-black">
-                                Preferencias
+                                Informacion de Cuenta
                             </h3>
 
                             <div className="mt-5 space-y-3 font-[Open_Sans] text-sm font-semibold">
-                                <label className="flex items-center justify-between">
-                                    Recibir ofertas
-                                    <input type="checkbox" defaultChecked />
-                                </label>
+                                <div>
+                                    <p className="text-black/80">Usuario desde:</p>
+                                    <p className="text-black/90">{new Date(userData.createdAt).toLocaleDateString("es-ES")}</p>
+                                </div>
 
-                                <label className="flex items-center justify-between">
-                                    Avisos de pedidos
-                                    <input type="checkbox" defaultChecked />
-                                </label>
+                                <div>
+                                    <p className="text-black/80">Estado:</p>
+                                    <p className="text-black/90">{userData.isActive ? "Activo" : "Inactivo"}</p>
+                                </div>
 
-                                <label className="flex items-center justify-between">
-                                    Drops exclusivos
-                                    <input type="checkbox" />
-                                </label>
+                                <div>
+                                    <p className="text-black/80">Ultima actividad:</p>
+                                    <p className="text-black/90">{new Date(userData.updatedAt).toLocaleDateString("es-ES")}</p>
+                                </div>
                             </div>
                         </div>
                     </div>

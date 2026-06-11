@@ -3,13 +3,14 @@ import Role from "../models/role.js";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
 import crypto from "crypto";
+import { config } from "../config.js";
 
 // Configurar Nodemailer
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-        user: process.env.USER_EMAIL,
-        pass: process.env.USER_PASSWORD,
+        user: config.email.user_email,
+        pass: config.email.user_password,
     },
 });
 
@@ -20,6 +21,7 @@ const generateTemporaryPassword = () => {
 
 // Obtener iniciales del nombre
 const getInitials = (fullName) => {
+    if (!fullName) return "U";
     return fullName
         .split(" ")
         .map((word) => word[0])
@@ -40,9 +42,9 @@ export const getAllUsers = async (req, res) => {
             success: true,
             users: users.map((user) => ({
                 _id: user._id,
-                name: user.fullName,
+                name: user.fullName || user.email,
                 email: user.email,
-                role: user.role.name,
+                role: user.role?.name || "Cliente",
                 avatar: getInitials(user.fullName),
                 date: user.createdAt.toLocaleDateString("es-ES", {
                     year: "numeric",
@@ -55,6 +57,7 @@ export const getAllUsers = async (req, res) => {
             })),
         });
     } catch (error) {
+        console.error("Error al obtener usuarios:", error);
         res.status(500).json({
             success: false,
             message: "Error al obtener usuarios",
@@ -82,9 +85,9 @@ export const getUserById = async (req, res) => {
             success: true,
             user: {
                 _id: user._id,
-                name: user.fullName,
+                name: user.fullName || user.email,
                 email: user.email,
-                role: user.role.name,
+                role: user.role?.name || "Cliente",
                 avatar: getInitials(user.fullName),
                 date: user.createdAt.toLocaleDateString("es-ES", {
                     year: "numeric",
@@ -97,6 +100,7 @@ export const getUserById = async (req, res) => {
             },
         });
     } catch (error) {
+        console.error("Error al obtener usuario:", error);
         res.status(500).json({
             success: false,
             message: "Error al obtener usuario",
@@ -154,15 +158,15 @@ export const createUser = async (req, res) => {
 
         // Enviar email con credentials temporales
         const mailOptions = {
-            from: process.env.USER_EMAIL,
+            from: config.email.user_email,
             to: email,
             subject: "Bienvenido a Calle Zero - Credenciales Temporales",
             html: `
-                <h2>¡Bienvenido a Calle Zero!</h2>
+                <h2>Bienvenido a Calle Zero!</h2>
                 <p>Tu cuenta ha sido creada por un administrador.</p>
                 <p><strong>Email:</strong> ${email}</p>
                 <p><strong>Contraseña Temporal:</strong> ${temporaryPassword}</p>
-                <p>Por favor, cambia tu contraseña al iniciar sesión.</p>
+                <p>Por favor, cambia tu contraseña al iniciar sesion.</p>
             `,
         };
 
@@ -184,6 +188,7 @@ export const createUser = async (req, res) => {
             },
         });
     } catch (error) {
+        console.error("Error al crear usuario:", error);
         res.status(500).json({
             success: false,
             message: "Error al crear usuario",
@@ -219,7 +224,7 @@ export const updateUser = async (req, res) => {
         }
 
         // Verificar si el rol existe (si cambió)
-        if (role && role !== user.role.toString()) {
+        if (role && user.role && role !== user.role.toString()) {
             const roleDoc = await Role.findOne({ name: role });
             if (!roleDoc) {
                 return res.status(400).json({
@@ -246,12 +251,13 @@ export const updateUser = async (req, res) => {
                 _id: updatedUser._id,
                 name: updatedUser.fullName,
                 email: updatedUser.email,
-                role: updatedUser.role.name,
+                role: updatedUser.role?.name || "Cliente",
                 avatar: getInitials(updatedUser.fullName),
                 isActive: updatedUser.isActive,
             },
         });
     } catch (error) {
+        console.error("Error al actualizar usuario:", error);
         res.status(500).json({
             success: false,
             message: "Error al actualizar usuario",
@@ -285,6 +291,7 @@ export const deleteUser = async (req, res) => {
             },
         });
     } catch (error) {
+        console.error("Error al eliminar usuario:", error);
         res.status(500).json({
             success: false,
             message: "Error al eliminar usuario",
@@ -314,6 +321,7 @@ export const getUserStats = async (req, res) => {
             },
         });
     } catch (error) {
+        console.error("Error al obtener estadísticas:", error);
         res.status(500).json({
             success: false,
             message: "Error al obtener estadísticas",

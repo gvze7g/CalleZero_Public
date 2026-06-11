@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Bell, Menu, Search, Package, ShoppingCart, UserPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -23,6 +23,51 @@ const notifications = [
 const Topbar = ({ onOpenSidebar }) => {
   const navigate = useNavigate();
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [userData, setUserData] = useState({
+    fullName: "Admin Calle Zero",
+    email: "admin@callezero.com",
+    initials: "AC",
+  });
+
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  const loadUserData = async () => {
+    try {
+      const response = await fetch("http://localhost:4000/api/users/me", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        console.log("No se pudo cargar usuario");
+        return;
+      }
+
+      const data = await response.json();
+      console.log("Usuario cargado en topbar:", data);
+
+      const fullName = data.fullName || data.name || "Admin Calle Zero";
+      const initials = fullName
+        .split(" ")
+        .map((word) => word[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
+
+      setUserData({
+        fullName: fullName,
+        email: data.email || "admin@callezero.com",
+        initials: initials,
+      });
+    } catch (error) {
+      console.error("Error cargando datos del usuario:", error);
+    }
+  };
 
   return (
     <header className="flex h-[76px] shrink-0 items-center justify-between gap-3 border-b border-[#1A1930] px-4 md:h-[86px] md:px-6 lg:px-8">
@@ -108,17 +153,17 @@ const Topbar = ({ onOpenSidebar }) => {
           className="flex items-center gap-3 rounded-[10px] px-2 py-1 transition hover:bg-white/5"
         >
           <div className="hidden text-right leading-tight sm:block">
-            <p className="font-[Open_Sans] text-[14px] font-bold text-white">
-              Admin Calle Zero
+            <p className="font-[Open_Sans] text-[14px] font-bold text-white line-clamp-1">
+              {userData.fullName}
             </p>
             <p className="font-[Open_Sans] text-[13px] text-white/60">
-              Administrador
+              {userData.email}
             </p>
           </div>
 
           <div className="relative">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-300 font-bold text-black">
-              AC
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#6F6A68] to-[#5a5551] font-bold text-white">
+              {userData.initials}
             </div>
             <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-black bg-green-500" />
           </div>

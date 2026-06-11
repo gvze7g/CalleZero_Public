@@ -1,0 +1,24 @@
+{
+  "dependencies": {
+    "react": "^19.2.7"
+  },
+  "name": "callezero",
+  "version": "1.0.0",
+  "description": "- Eduardo José Gálvez Benítez  \r - Leonel Adrián Ramos López  \r - Diego Alejandro López Granados  \r - Diego Alberto López Zelaya",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gvze7g/CalleZero.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/gvze7g/CalleZero/issues"
+  },
+  "homepage": "https://github.com/gvze7g/CalleZero#readme"
+}

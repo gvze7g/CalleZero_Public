@@ -18,10 +18,9 @@ export const config = {
         user_password: process.env.USER_PASSWORD
     },
 
-     cloudinary:{
-        cloudinary_name: process.env.CLOUDINARY_CLOUD_NAME,
-        cloudinary_api_key: process.env.CLOUDINARY_API_KEY,
-        cloudinary_api_secret: process.env.CLOUDINARY_API_SECRET
+    cloudinary:{
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,      // ✅ Cambiar de cloudinary_name
+        api_key: process.env.CLOUDINARY_API_KEY,             // ✅ Cambiar de cloudinary_api_key
+        api_secret: process.env.CLOUDINARY_API_SECRET         // ✅ Cambiar de cloudinary_api_secret
     },
-
 }

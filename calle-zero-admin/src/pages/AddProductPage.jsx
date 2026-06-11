@@ -18,7 +18,7 @@ const AddProductPage = () => {
 
     const [selectedSize, setSelectedSize] = useState("M");
     const [categories, setCategories] = useState([]);
-    const [imageFile, setImageFile] = useState(null); // ← AGREGAR ESTO
+    const [imageFile, setImageFile] = useState(null);
 
     const [formData, setFormData] = useState({
         name: product?.name || "",
@@ -60,7 +60,7 @@ const AddProductPage = () => {
     };
 
     const handleImageChange = (file) => {
-        setImageFile(file); // ← AGREGAR ESTO
+        setImageFile(file);
     };
 
     const handleSubmit = async (event) => {
@@ -76,18 +76,20 @@ const AddProductPage = () => {
         }
 
         try {
-            // ← CAMBIAR A FormData
+            // Usar FormData
             const productFormData = new FormData();
             productFormData.append("name", formData.name);
             productFormData.append("description", formData.description);
             productFormData.append("categoryId", formData.categoryId);
             productFormData.append("price", Number(formData.price));
             productFormData.append("stock", 0);
+            productFormData.append("sku", formData.sku || ""); // ✅ AGREGAR SKU
             productFormData.append("size", JSON.stringify([selectedSize]));
             productFormData.append("isActive", true);
 
+            // ✅ CAMBIAR DE "file" A "image"
             if (imageFile) {
-                productFormData.append("file", imageFile); // ← AGREGAR IMAGEN
+                productFormData.append("image", imageFile);
             }
 
             const url =
@@ -100,7 +102,7 @@ const AddProductPage = () => {
             const response = await fetch(url, {
                 method,
                 credentials: "include",
-                body: productFormData, // ← SIN headers Content-Type
+                body: productFormData, // Sin headers Content-Type
             });
 
             const data = await response.json();
@@ -175,7 +177,7 @@ const AddProductPage = () => {
                             onChange={handleChange}
                         />
 
-                        <ProductMediaCard onImageChange={handleImageChange} /> {/* ← AGREGAR PROP */}
+                        <ProductMediaCard onImageChange={handleImageChange} />
 
                         <button
                             type="submit"

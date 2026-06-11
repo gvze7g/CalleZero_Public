@@ -1,21 +1,38 @@
 import multer from "multer";
-import { v2 as cloudinary } from "cloudinary";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
-import { config } from "../config.js"
+import path from "path";
+import fs from "fs";
 
-cloudinary.config({
-    cloud_name: config.cloudinary.cloud_name,
-    api_key:config.cloudinary.api_key,
-    api_secret: config.cloudinary.api_secret
-})
+// Crear carpeta de uploads si no existe
+const uploadsDir = "uploads/";
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
-const storage = new CloudinaryStorage({
-    cloudinary,
-    params: {
-        folder: "Calle-Zero",
-        allowed_formats: [ "jpg", "png", "jpeg", "webp", "svg", "pdf" ]
+// Configurar Multer con almacenamiento local
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error("Solo se permiten imágenes: JPEG, PNG, WEBP"));
     }
-})
+  },
+});
 
-const upload = multer({ storage });
 export default upload;

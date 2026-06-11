@@ -1,5 +1,5 @@
 import productModel from "../models/product.js";
-import cloudinary from "../utils/cloudinaryConfig.js";
+import cloudinary from "../Utils/cloudinary.js";  // ✅ IMPORTAR CLOUDINARY CORRECTAMENTE
 import fs from "fs";
 
 const productController = {};
@@ -57,6 +57,7 @@ productController.InsertProducts = async (req, res) => {
       stock,
       size,
       isActive,
+      sku,
     } = req.body;
 
     if (!name || !price || !categoryId) {
@@ -80,7 +81,7 @@ productController.InsertProducts = async (req, res) => {
       } catch (uploadError) {
         console.log("❌ Error en Cloudinary:", uploadError);
         if (req.file) fs.unlinkSync(req.file.path);
-        return res.status(500).json({ message: "Error subiendo imagen" });
+        return res.status(500).json({ message: "Error subiendo imagen", error: uploadError.message });
       }
     }
 
@@ -95,6 +96,7 @@ productController.InsertProducts = async (req, res) => {
       size: parsedSize,
       isActive: isActive === "true" || isActive === true,
       imageUrl,
+      sku: sku || "",
     });
 
     await newProduct.save();
@@ -125,6 +127,7 @@ productController.updateProduct = async (req, res) => {
       stock,
       size,
       isActive,
+      sku,
     } = req.body;
 
     const product = await productModel.findById(req.params.id);
@@ -143,7 +146,7 @@ productController.updateProduct = async (req, res) => {
         fs.unlinkSync(req.file.path);
       } catch (uploadError) {
         if (req.file) fs.unlinkSync(req.file.path);
-        return res.status(500).json({ message: "Error subiendo imagen" });
+        return res.status(500).json({ message: "Error subiendo imagen", error: uploadError.message });
       }
     }
 
@@ -160,6 +163,7 @@ productController.updateProduct = async (req, res) => {
         size: parsedSize,
         isActive: isActive === "true" || isActive === true,
         imageUrl,
+        sku: sku || "",
       },
       { new: true }
     );
@@ -171,7 +175,7 @@ productController.updateProduct = async (req, res) => {
   } catch (error) {
     console.log("Error: ", error);
     if (req.file) fs.unlinkSync(req.file.path);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 
